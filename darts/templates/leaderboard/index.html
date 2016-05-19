@@ -18,10 +18,14 @@
 		<form class="form-inline" style="text-align: center; margin: 12px 0;">
 			<div class="form-group">
 				<div class="input-daterange input-group">
-					<input type="text" class="input-sm form-control" name="start" placeholder="start date" />
+					<input type="text" class="input-sm form-control" name="start" placeholder="start date" value="{{ startDate }}" />
 					<span class="input-group-addon">to</span>
-					<input type="text" class="input-sm form-control" name="end" placeholder="end date" />
+					<input type="text" class="input-sm form-control" name="end" placeholder="end date" value="{{ endDate }}" />
 				</div>
+			</div>
+
+			<div class="form-group">
+				<button class="btn btn-primary btn-sm save-date-range">Save</button>
 			</div>
 		</form>
 

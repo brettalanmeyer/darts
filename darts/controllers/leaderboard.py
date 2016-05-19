@@ -6,6 +6,7 @@ from darts.entities import team as teamModel
 from darts.entities import team_player as teamPlayerModel
 from darts.entities import mark as markModel
 from darts.entities import result as resultModel
+from darts.entities import setting as settingModel
 from darts import model
 from sqlalchemy import text
 from datetime import datetime, timedelta
@@ -19,9 +20,26 @@ def leaderboard_index():
 	useStart = start is not None and len(start) > 0
 	useEnd = end is not None and len(end) > 0
 
+	startFormatted = ""
+	endFormatted = ""
+
+	if not useStart:
+		startDate = model.Model().selectById(settingModel.Setting, 1).startDate
+		if startDate != None:
+			useStart = True
+			start = startDate
+			startFormatted = "{:%Y-%m-%d}".format(startDate)
+
+	if not useEnd:
+		endDate = model.Model().selectById(settingModel.Setting, 1).endDate
+		if endDate != None:
+			useEnd = True
+			end = endDate
+			endFormatted = "{:%Y-%m-%d}".format(endDate)
+
 	if useEnd:
-		date = datetime.strptime(end , "%Y-%m-%d")
-		end = date + timedelta(days = 1)
+		date = "%Y-%m-%d".format(end)
+		end = date + str(timedelta(days = 1))
 
 	query = "\
 		SELECT\
@@ -143,10 +161,11 @@ def leaderboard_index():
 	points = getPlayerPoints(start, useStart, end, useEnd)
 	times = getTimePlayed(start, useStart, end, useEnd)
 
+
 	if request.is_xhr:
 		return render_template("leaderboard/_table.html", data = data, points = points, times = times)
 	else:
-		return render_template("leaderboard/index.html", data = data, points = points, times = times)
+		return render_template("leaderboard/index.html", data = data, points = points, times = times, startDate = startFormatted, endDate = endFormatted)
 
 @app.route("/leaderboard/players/<int:playerId>/", methods = ["GET"])
 def leaderboard_players(playerId):
@@ -357,3 +376,17 @@ def formatTime(seconds):
 	m, s = divmod(seconds, 60)
 	h, m = divmod(m, 60)
 	return "%02d:%02d:%02d" % (h, m, s)
+
+
+@app.route("/leaderboard/date-range/", methods = ["POST"])
+def leaderboard_date_range():
+	startDate = request.form["startDate"]
+	endDate = request.form["endDate"]
+
+	if len(startDate) == 0:
+		startDate = None
+	if len(endDate) == 0:
+		endDate = None
+
+	model.Model().update(settingModel.Setting, 1, { "startDate": startDate, "endDate": endDate })
+	return ""

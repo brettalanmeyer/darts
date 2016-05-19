@@ -4,6 +4,9 @@ $(function(){
 	var leaderboard = $("#leaderboard");
 	var column, direction;
 
+	var start = $("input[name=start]");
+	var end = $("input[name=end]");
+
 	function updateTable(html){
 		leaderboard.html(html);
 		bindSort();
@@ -18,22 +21,33 @@ $(function(){
 		$("th").eq(column).stupidsort(direction);
 	}
 
-	$(".input-daterange").datepicker({
+	$("input[name=start], input[name=end]").datepicker({
 
 		clearBtn: true,
 		autoclose: true,
 		todayHighlight: true,
 		format: "yyyy-mm-dd"
 
-	}).on("change.dp", function(){
+	}).on("change.dp", function(e){
+
+		saveButton.html("Save").removeClass("disabled");
 
 		if(ajaxRequest){
 			ajaxRequest.abort();
 		}
-		ajaxRequest = $.get("/leaderboard/", { "start": $("input[name=start]").val(), "end": $("input[name=end]").val() }).done(updateTable);
+		ajaxRequest = $.get("/leaderboard/", { "start": start.val(), "end": end.val() }).done(updateTable);
 
 	});
 
 	bindSort();
+
+	var saveButton =$(".save-date-range");
+
+	saveButton.on("click", function(){
+		$.post("/leaderboard/date-range/", { startDate: start.val(), endDate: end.val() }, function(){
+			saveButton.html("Saved").addClass("disabled");
+		});
+		return false;
+	});
 
 });

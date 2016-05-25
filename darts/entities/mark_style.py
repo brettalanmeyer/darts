@@ -9,16 +9,22 @@ class MarkStyle(Base):
 
 	id = Column(Integer, primary_key = True)
 	name = Column(String)
+	email = Column(String)
+	token = Column(String)
 	one = Column(String)
 	two = Column(String)
 	three = Column(String)
+	confirmed = Column(Integer)
 	approved = Column(Integer)
 	createdAt = Column(DateTime)
 
-	def __init__(self, name, one, two, three, approved, createdAt):
+	def __init__(self, name, email, token, one, two, three, confirmed, approved, createdAt):
 		self.name = name
+		self.email = email
+		self.token = token
 		self.one = one
 		self.two = two
 		self.three = three
+		self.confirmed = confirmed
 		self.approved = approved
 		self.createdAt = createdAt

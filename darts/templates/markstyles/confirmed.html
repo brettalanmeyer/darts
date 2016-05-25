@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block title %}Mark Styles{% endblock %}
+
+{% block head %}
+	{{ super() }}
+	{% assets filters="cssmin", output="gen/markstyles.css", "stylesheets/markstyles.css" %}
+		<link href="{{ ASSET_URL }}" rel="stylesheet">
+	{% endassets %}
+{% endblock %}
+
+{% block body %}
+
+	<div class="container-fluid mark-styles">
+
+		<h1>Mark Style Confirmed</h1>
+
+		<br />
+
+		<p class="text-center">Your submission has been confirmed.</p>
+		<p class="text-center">A notification has been sent to an administrator and your submission is pending review.</p>
+		<p class="text-center">Thank you.</p>
+
+		<br />
+
+		<p class="text-center">
+			<a href="/mark-styles/" class="btn btn-primary">Back to Mark Styles</a>
+			<a href="/" class="btn btn-primary">Darts Home</a>
+		</p>
+
+	</div>
+
+{% endblock %}

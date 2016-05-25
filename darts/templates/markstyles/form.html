@@ -61,8 +61,14 @@
 			<input type="hidden" name="three" />
 
 			<div class="form-group">
-			<label for="mark-style-name">Your Name:</label>
+				<label for="mark-style-name">Your Name:</label>
 				<input type="text" id="mark-style-name" name="name" class="form-control" required value="{{ markStyle.name }}" />
+			</div>
+
+			<div class="form-group">
+				<label for="mark-style-name">Your Email:</label>
+				<input type="text" id="mark-style-name" name="email" class="form-control" required value="{{ markStyle.email }}" />
+				<p class="help-block">A confirmation email will be sent to this address for verification of submission.</p>
 			</div>
 
 			<button class="btn btn-default btn-primary" type="submit" id="create-mark-style" disabled>

@@ -1,0 +1,9 @@
+
+ALTER TABLE `mark_styles`
+	ADD COLUMN `email` VARCHAR(255) NULL DEFAULT NULL AFTER `name`;
+
+ALTER TABLE `mark_styles`
+	ADD COLUMN `token` VARCHAR(255) NULL DEFAULT NULL AFTER `email`;
+
+ALTER TABLE `mark_styles`
+	ADD COLUMN `confirmed` TINYINT(1) NULL DEFAULT NULL AFTER `three`;

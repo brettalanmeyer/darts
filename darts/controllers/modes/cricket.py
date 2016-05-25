@@ -46,7 +46,7 @@ def cricket_create_num_players(id):
 
 @app.route("/matches/<int:id>/modes/cricket/play/", methods = ["GET"])
 def cricket_board(id):
-	markStyle = model.Model().select(markStyleModel.MarkStyle).filter_by(approved = 1).order_by(func.rand()).first()
+	markStyle = model.Model().select(markStyleModel.MarkStyle).filter_by(approved = 1, confirmed = 1).order_by(func.rand()).first()
 	return render_template("matches/modes/cricket/board.html", match = getGameData(id), markStyle = markStyle)
 
 def getGameData(id):

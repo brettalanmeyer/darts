@@ -46,8 +46,12 @@ def cricket_create_num_players(id):
 
 @app.route("/matches/<int:id>/modes/cricket/play/", methods = ["GET"])
 def cricket_board(id):
-	markStyle = model.Model().select(markStyleModel.MarkStyle).filter_by(approved = 1, confirmed = 1).order_by(func.rand()).first()
-	return render_template("matches/modes/cricket/board.html", match = getGameData(id), markStyle = markStyle)
+	markStyles = get_mark_styles()
+	markStyle = markStyles.order_by(func.rand()).first()
+	markStyleIds = []
+	for ms in markStyles:
+		markStyleIds.append(int(ms.id))
+	return render_template("matches/modes/cricket/board.html", match = getGameData(id), markStyle = markStyle, markStyleIds = markStyleIds)
 
 def getGameData(id):
 	match = model.Model().selectById(matchModel.Match, id)
@@ -394,6 +398,14 @@ def cricket_again(id):
 	model.Model().update(matchModel.Match, newMatch.id, { "turn": playerIds[0] })
 
 	return redirect("/matches/%d/modes/cricket/play/" % newMatch.id)
+
+
+@app.route("/matches/modes/cricket/styles.css", methods = ["GET"])
+def cricket_styles():
+	return Response(render_template("matches/modes/cricket/styles.css", markStyles = get_mark_styles()), status = 200, mimetype = "text/css")
+
+def get_mark_styles():
+	return model.Model().select(markStyleModel.MarkStyle).filter_by(approved = 1, confirmed = 1)
 
 def cricket_get_turn(match):
 

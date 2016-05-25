@@ -1,0 +1,20 @@
+
+{% for markStyle in markStyles %}
+
+	.mark-style-{{ markStyle.id }}.awarded[data-hits] {
+		background-image: url("/mark-styles/{{ markStyle.id }}/three.svg");
+	}
+
+	.mark-style-{{ markStyle.id }}.awarded[data-hits="0"] {
+		background-image: none;
+	}
+
+	.mark-style-{{ markStyle.id }}.awarded[data-hits="1"] {
+		background-image: url("/mark-styles/{{ markStyle.id }}/one.svg");
+	}
+
+	.mark-style-{{ markStyle.id }}.awarded[data-hits="2"] {
+		background-image: url("/mark-styles/{{ markStyle.id }}/two.svg");
+	}
+
+{% endfor %}

@@ -7,6 +7,7 @@
 	{% assets filters="cssmin", output="gen/cricket.css", "stylesheets/cricket.css" %}
 		<link href="{{ ASSET_URL }}" rel="stylesheet">
 	{% endassets %}
+	<link href="/matches/modes/cricket/styles.css" rel="stylesheet">
 {% endblock %}
 
 {% block body %}
@@ -89,7 +90,7 @@
 				<div class="point-value" data-points="{{ i }}">{{ i }}</div>
 
 				{% for team in match["teams"] %}
-					<div class="target awarded" data-teamid="{{ team.id }}" data-points="{{ i }}" data-hits="{{ team["marks"][i] }}"></div>
+					<div class="target awarded mark-style-{{ markStyle.id }}" data-teamid="{{ team.id }}" data-points="{{ i }}" data-hits="{{ team["marks"][i] }}"></div>
 				{% endfor %}
 
 			</div>
@@ -99,7 +100,7 @@
 		<div class="points">
 			<div class="point-value" data-points="25">B</div>
 			{% for team in match["teams"] %}
-				<div class="target awarded" data-teamid="{{ team.id }}" data-points="25" data-hits="{{ team["marks"][25] }}"></div>
+				<div class="target awarded mark-style-{{ markStyle.id }}" data-teamid="{{ team.id }}" data-points="25" data-hits="{{ team["marks"][25] }}"></div>
 			{% endfor %}
 		</div>
 
@@ -154,6 +155,8 @@
 	<input type="hidden" name="turn" value="{{ match.turn }}" />
 	<input type="hidden" name="complete" value="{{ match.complete }}" />
 	<input type="hidden" name="createdAt" value="{{ match.createdAt }}" />
+	<input type="hidden" name="markStyleId" value="{{ markStyle.id }}" />
+	<input type="hidden" name="markStyleIds" value="{{ markStyleIds }}" />
 
 	{% for result in match["results"] %}
 		<input
@@ -213,26 +216,6 @@
 			<a class="btn btn-default btn-lg home-no">No</a>
 		</div>
 	</div>
-
-	{% if markStyle != None %}
-		<style>
-			.awarded[data-hits] {
-				background-image: url("/mark-styles/{{ markStyle.id }}/three.svg");
-			}
-
-			.awarded[data-hits="0"] {
-				background-image: none;
-			}
-
-			.awarded[data-hits="1"] {
-				background-image: url("/mark-styles/{{ markStyle.id }}/one.svg");
-			}
-
-			.awarded[data-hits="2"] {
-				background-image: url("/mark-styles/{{ markStyle.id }}/two.svg");
-			}
-		</style>
-	{% endif %}
 
 {% endblock %}
 

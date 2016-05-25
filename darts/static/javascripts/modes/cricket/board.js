@@ -68,6 +68,9 @@ $(function(){
 	var numPlayers = parseInt($("input[name=players]").val());
 	var round = parseInt($("input[name=round]").val());
 	var createdAt = new Date($("input[name=createdAt]").val());
+	var markStyleId = $("input[name=markStyleId]");
+	var markStyleIds = $("input[name=markStyleIds]").val().replace(/\[|\]|\s/g, "").split(",");
+	var markStyleIdIndex = 0;
 
 	var turnTimeout;
 	var turnDelay = 5000;
@@ -348,5 +351,15 @@ $(function(){
 		var time = ((hours < 10) ? ("0" + hours) : hours) + ":" + ((minutes < 10) ? ("0" + minutes) : minutes) + ":" + ((seconds < 10) ? ("0" + seconds) : seconds);
 		timeLabel.html(time);
 	}
+
+	$(".point-value[data-points=17]").on("click", function(){
+		var id = markStyleIds[markStyleIdIndex];
+		$(".awarded").removeClass("mark-style-" + markStyleId.val()).addClass("mark-style-" + id);
+		markStyleId.val(id);
+		markStyleIdIndex++;
+		if(markStyleIdIndex >= markStyleIds.length){
+			markStyleIdIndex = 0;
+		}
+	});
 
 });

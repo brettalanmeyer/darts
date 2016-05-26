@@ -46,8 +46,8 @@ def cricket_create_num_players(id):
 
 @app.route("/matches/<int:id>/modes/cricket/play/", methods = ["GET"])
 def cricket_board(id):
-	markStyles = get_mark_styles()
-	markStyle = markStyles.order_by(func.rand()).first()
+	markStyles = get_mark_styles().order_by(func.rand())
+	markStyle = markStyles.first()
 	markStyleIds = []
 	for ms in markStyles:
 		markStyleIds.append(int(ms.id))

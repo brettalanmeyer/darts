@@ -355,7 +355,7 @@ $(function(){
 	$(".point-value[data-points=17]").on("click", function(){
 		var id = markStyleIds[markStyleIdIndex];
 		$(".awarded").removeClass("mark-style-" + markStyleId.val()).addClass("mark-style-" + id);
-		markStyleId.val(id);
+		markStyleId.attr("value", id);
 		markStyleIdIndex++;
 		if(markStyleIdIndex >= markStyleIds.length){
 			markStyleIdIndex = 0;

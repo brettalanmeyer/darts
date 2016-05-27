@@ -37,7 +37,7 @@ def server_error(error):
     return render_template("main/500.html"), 500
 
 @app.after_request
-def beforeRequest(response):
+def afterRequest(response):
 	model.Model().close()
 	return response
 

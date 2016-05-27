@@ -38,12 +38,14 @@ $(function(){
 			player.addClass("disabled");
 			player.find(".point").html(places[place++]);
 			return;
+		} else {
+			player.removeClass("disabled");
 		}
 
 		player.data("points", points);
 
-		if(response.bulls > 0){
-			points += ' <span class="bulls">x ' + response.bulls + '</span>';
+		if(points >= 25){
+			points += ' <span class="bulls">x ' + (response.bulls + 1) + '</span>';
 		}
 
 		player.find(".point").html(points);

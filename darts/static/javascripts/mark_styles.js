@@ -4,16 +4,6 @@ $(function(){
 	var history = [];
 	var addHistory = true;
 
-	// if(svgs){
-	// 	for(var i in svgs){
-	// 		layers[i] = {
-	// 			png: null,
-	// 			svg: svgs[i],
-	// 			json: null
-	// 		};
-	// 	}
-	// }
-
 	var canvas = this.__canvas = new fabric.Canvas("mark-style", {
 		isDrawingMode: true,
 		selection: false

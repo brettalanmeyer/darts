@@ -45,6 +45,19 @@ header {
 	line-height: 14vh;
 }
 
+.game-option .miss .default {
+	display: inline;
+}
+.game-option .miss:active .default {
+	display: none;
+}
+.game-option .miss .active {
+	display: none;
+}
+.game-option .miss:active .active {
+	display: inline;
+}
+
 .target:active,
 .player.active {
 	background-color: #ddd;
@@ -213,6 +226,7 @@ header {
 	width: 50%;
 	text-align: center;
 }
+
 .round-score label {
 	width: 16px;
 	margin: 0;
@@ -222,6 +236,8 @@ header {
 	font-size: 11vh;
 	line-height: 8vh;
 	text-align: center;
+	position: relative;
+	bottom: 4px;
 }
 
 .mark-counter {

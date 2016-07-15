@@ -237,6 +237,16 @@ header {
 	line-height: 8vh;
 	text-align: center;
 	position: relative;
+}
+
+.current-round-points.games-1 {
+	top: 20px;
+}
+
+.current-round-points.games-3 {
+}
+
+.current-round-points.games-5 {
 	bottom: 4px;
 }
 

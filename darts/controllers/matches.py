@@ -82,12 +82,12 @@ def matches_index(page):
 
 @app.route("/matches/new/", methods = ["GET"])
 def matches_new():
-	modes = model.Model().select(modeModel.Mode).filter_by(enabled = True)
+	modes = model.Model().select(modeModel.Mode).filter_by(enabled = True).order_by("orderNum")
 	return render_template("matches/new.html", modes = modes)
 
 @app.route("/matches/", methods = ["POST"])
 def matches_create():
-	newMatch = matchModel.Match(request.form["modes"], None, None, 1, 1, False, 0, datetime.now())
+	newMatch = matchModel.Match(request.form["modes"], None, None, 1, 1, False, 0, None, datetime.now())
 	model.Model().create(newMatch)
 
 	mode = model.Model().selectById(modeModel.Mode, newMatch.modeId)

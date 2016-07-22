@@ -87,13 +87,13 @@
 
 		</div>
 
-		{% for i in range(20, 14, -1) %}
+		{% for point in match["points"] %}
 
 			<div class="points">
-				<div class="point-value" data-points="{{ i }}">{{ i }}</div>
+				<div class="point-value" data-points="{{ point }}">{{ point }}</div>
 
 				{% for team in match["teams"] %}
-					<div class="target awarded mark-style-{{ markStyle.id }}" data-teamid="{{ team.id }}" data-points="{{ i }}" data-hits="{{ team["marks"][i] }}"></div>
+					<div class="target awarded mark-style-{{ markStyle.id }}" data-teamid="{{ team.id }}" data-points="{{ point }}" data-hits="{{ team["marks"][point] }}"></div>
 				{% endfor %}
 
 			</div>

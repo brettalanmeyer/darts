@@ -17,10 +17,11 @@ class Match(Base):
 	ready = Column(Integer)
 	turn = Column(Integer)
 	complete = Column(Integer)
+	data = Column(String)
 	createdAt = Column(DateTime)
 	completedAt = Column(DateTime)
 
-	def __init__(self, modeId, players, games, game, round, ready, complete, createdAt):
+	def __init__(self, modeId, players, games, game, round, ready, complete, data, createdAt):
 		self.modeId = modeId
 		self.players = players
 		self.games = games
@@ -28,4 +29,5 @@ class Match(Base):
 		self.round = round
 		self.ready = ready
 		self.complete = complete
+		self.data = data
 		self.createdAt = createdAt

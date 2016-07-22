@@ -68,9 +68,13 @@ def getGameData(id):
 		"turn": match.turn,
 		"teams": [],
 		"results": [],
+		"points": [20, 19, 18, 17, 16, 15],
 		"complete": match.complete,
 		"createdAt": str(match.createdAt).replace("-", "/")
 	}
+
+	if mode.mode == "random-crickets":
+		data["points"] = map(int, match.data.split(","))
 
 	for result in results:
 		data["results"].append({
@@ -87,18 +91,16 @@ def getGameData(id):
 			"id": team.id,
 			"players": [],
 			"marks": {
-				20: 0,
-				19: 0,
-				18: 0,
-				17: 0,
-				16: 0,
-				15: 0,
 				25: 0,
-				0: 0,
 				"points": 0
 			},
 			"results": []
 		}
+
+		for i in range(0, 21):
+			teamData["marks"][i] = 0
+
+		print(teamData)
 
 		for i in range(1, 6):
 			results = model.Model().select(resultModel.Result).filter_by(matchId = match.id, teamId = team.id, game = i)
@@ -134,15 +136,12 @@ def getGameData(id):
 			})
 
 		scored = {
-			20: 0,
-			19: 0,
-			18: 0,
-			17: 0,
-			16: 0,
-			15: 0,
-			25: 0,
-			0: 0
+			25: 0
 		}
+
+		for i in range(0, 21):
+			scored[i] = 0
+
 		pointsScored = 0
 
 		marks = model.Model().select(markModel.Mark).filter_by(matchId = match.id, teamId = team.id, game = match.game)
@@ -182,7 +181,23 @@ def cricket_play(id):
 	team = model.Model().select(teamModel.Team).filter_by(matchId = id).first()
 	teamPlayer = model.Model().select(teamPlayerModel.TeamPlayer).filter_by(teamId = team.id).first()
 	match = model.Model().selectById(matchModel.Match, id)
-	model.Model().update(matchModel.Match, match.id, { "ready": True, "turn": teamPlayer.playerId })
+
+	data = {
+		"ready": True,
+		"turn": teamPlayer.playerId
+	}
+
+	mode = model.Model().selectById(modeModel.Mode, match.modeId)
+	if mode.mode == "random-crickets":
+		values = []
+		for i in range(1,21):
+			values.append(i);
+		random.shuffle(values)
+		points = values[0:6]
+		points.sort(reverse = True)
+		data["data"] = ",".join(map(str, points))
+
+	model.Model().update(matchModel.Match, match.id, data)
 	return redirect("/matches/%d/modes/cricket/play/" % id)
 
 @app.route("/matches/<int:id>/modes/cricket/players/", methods = ["GET"])

@@ -100,8 +100,6 @@ def getGameData(id):
 		for i in range(0, 21):
 			teamData["marks"][i] = 0
 
-		print(teamData)
-
 		for i in range(1, 6):
 			results = model.Model().select(resultModel.Result).filter_by(matchId = match.id, teamId = team.id, game = i)
 			resultSet = {
@@ -178,22 +176,39 @@ def cricket_randomize(id):
 
 @app.route("/matches/<int:id>/modes/cricket/play/", methods = ["POST"])
 def cricket_play(id):
-	team = model.Model().select(teamModel.Team).filter_by(matchId = id).first()
-	teamPlayer = model.Model().select(teamPlayerModel.TeamPlayer).filter_by(teamId = team.id).first()
 	match = model.Model().selectById(matchModel.Match, id)
+	mode = model.Model().selectById(modeModel.Mode, match.modeId)
+	team = model.Model().select(teamModel.Team).filter_by(matchId = match.id).first()
+	teamPlayer = model.Model().select(teamPlayerModel.TeamPlayer).filter_by(teamId = team.id).first()
 
 	data = {
 		"ready": True,
 		"turn": teamPlayer.playerId
 	}
 
-	mode = model.Model().selectById(modeModel.Mode, match.modeId)
+	# randomize values for this game mode
 	if mode.mode == "random-crickets":
-		values = []
-		for i in range(1,21):
-			values.append(i);
-		random.shuffle(values)
-		points = values[0:6]
+
+		# 10% of the time, it works, everytime
+		groupNumbers = (random.randint(0,9) == 1)
+		if groupNumbers:
+			# order of numbers arranged on dart board
+			values = [1,18,4,13,6,10,15,2,17,3,19,7,16,8,11,14,9,12,5,20]
+
+			# double length of numbers to eliminate midpoint bias
+			values.extend(values)
+
+			start = random.randint(0, len(values) - 7)
+			end = start + 6
+			points = values[start:end]
+
+		else:
+			values = []
+			for i in range(1,21):
+				values.append(i);
+			random.shuffle(values)
+			points = values[0:6]
+
 		points.sort(reverse = True)
 		data["data"] = ",".join(map(str, points))
 

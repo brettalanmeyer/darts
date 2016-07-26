@@ -352,7 +352,7 @@ $(function(){
 		timeLabel.html(time);
 	}
 
-	$(".point-value[data-points=17]").on("click", function(){
+	$(".point-value").eq(3).on("click", function(){
 		var id = markStyleIds[markStyleIdIndex];
 		$(".awarded").removeClass("mark-style-" + markStyleId.val()).addClass("mark-style-" + id);
 		markStyleId.attr("value", id);

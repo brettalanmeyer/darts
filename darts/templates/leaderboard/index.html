@@ -11,7 +11,13 @@
 
 	<div class="container-fluid leaderboard">
 
-		<h1>Leaderboard</h1>
+		<h1>
+			Leaderboard -
+			<select id="leaderboard-mode" class="form-control form-modes">
+				<option value="/leaderboard/cricket/" {% if mode.mode == "cricket" %}selected="selected"{% endif %}>Cricket</option>
+				<option value="/leaderboard/random-crickets/" {% if mode.mode == "random-crickets" %}selected="selected"{% endif %}>Random Crickets</option>
+			</select>
+		</h1>
 
 		<p class="text-center">Statistics and Win/Loss records are calculated from complete matches only.</p>
 

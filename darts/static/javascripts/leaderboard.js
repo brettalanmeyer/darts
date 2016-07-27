@@ -35,7 +35,7 @@ $(function(){
 		if(ajaxRequest){
 			ajaxRequest.abort();
 		}
-		ajaxRequest = $.get("/leaderboard/", { "start": start.val(), "end": end.val() }).done(updateTable);
+		ajaxRequest = $.get($("#leaderboard-mode").val(), { "start": start.val(), "end": end.val() }).done(updateTable);
 
 	});
 
@@ -48,6 +48,10 @@ $(function(){
 			saveButton.html("Saved").addClass("disabled");
 		});
 		return false;
+	});
+
+	$("#leaderboard-mode").on("change", function(){
+		window.location = $(this).val();
 	});
 
 });

@@ -210,3 +210,11 @@ header a:focus {
 .leaderboard th[data-sort].sorting-desc .glyphicon-chevron-down {
 	color: #333
 }
+
+.leaderboard .form-modes {
+	width: 200px;
+	display: inline;
+	position: relative;
+	bottom: 3px;
+	font-weight: bold;
+}

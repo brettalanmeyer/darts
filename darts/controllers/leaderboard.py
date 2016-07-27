@@ -7,12 +7,17 @@ from darts.entities import team_player as teamPlayerModel
 from darts.entities import mark as markModel
 from darts.entities import result as resultModel
 from darts.entities import setting as settingModel
+from darts.entities import mode as modeModel
 from darts import model
 from sqlalchemy import text
 from datetime import datetime, timedelta
 
-@app.route("/leaderboard/", methods = ["GET"])
-def leaderboard_index():
+@app.route("/leaderboard/<path:modeName>/", methods = ["GET"])
+def leaderboard_index(modeName):
+
+	mode = model.Model().select(modeModel.Mode).filter_by(mode = modeName).first()
+
+	modeId = str(mode.id)
 
 	start = request.args.get("start")
 	end = request.args.get("end")
@@ -38,8 +43,8 @@ def leaderboard_index():
 			endFormatted = "{:%Y-%m-%d}".format(endDate)
 
 	if useEnd:
-		date = "%Y-%m-%d".format(end)
-		end = date + str(timedelta(days = 1))
+		date = datetime.strptime(end, "%Y-%m-%d").date()
+		end = date + timedelta(days = 1)
 
 	query = "\
 		SELECT\
@@ -50,7 +55,7 @@ def leaderboard_index():
 				FROM teams_players tp\
 				LEFT JOIN teams t ON tp.teamId = t.id\
 				LEFT JOIN matches g on t.matchId = g.id\
-				WHERE tp.playerId = p.id AND g.modeId = 1 AND g.complete = 1\
+				WHERE tp.playerId = p.id AND g.modeId = :modeId  AND g.complete = 1\
 	"
 
 	if useStart:
@@ -71,7 +76,7 @@ def leaderboard_index():
 				WHERE 1 = 1\
 					AND m.playerId = p.id\
 					AND m.value != 0\
-					AND g.modeId = 1\
+					AND g.modeId = :modeId \
 					AND g.complete = 1\
 	"
 
@@ -92,7 +97,7 @@ def leaderboard_index():
 					SELECT r.playerId, r.matchId, r.teamId, r.game, r.round\
 					FROM marks r\
 					LEFT JOIN matches g on r.matchId = g.id\
-					WHERE g.modeId = 1 AND g.complete = 1\
+					WHERE g.modeId = :modeId  AND g.complete = 1\
 	"
 
 	if useStart:
@@ -115,7 +120,7 @@ def leaderboard_index():
 				LEFT JOIN teams_players tp2 on tp2.playerId = p2.id\
 				LEFT JOIN teams t2 on tp2.teamId = t2.id\
 				LEFT JOIN matches g on t2.matchId = g.id\
-				WHERE g.modeId = 1 AND t2.win = 1 AND p2.id = p.id\
+				WHERE g.modeId = " + modeId + " AND t2.win = 1 AND p2.id = p.id\
 	"
 
 	if useStart:
@@ -136,7 +141,7 @@ def leaderboard_index():
 				LEFT JOIN teams_players tp2 on tp2.playerId = p2.id\
 				LEFT JOIN teams t2 on tp2.teamId = t2.id\
 				LEFT JOIN matches g on t2.matchId = g.id\
-				WHERE g.modeId = 1 AND t2.loss = 1 AND p2.id = p.id\
+				WHERE g.modeId = :modeId AND t2.loss = 1 AND p2.id = p.id\
 	"
 
 	if useStart:
@@ -156,19 +161,21 @@ def leaderboard_index():
 
 	session = model.Model().getSession()
 	connection = session.connection()
-	data = connection.execute(text(query), start = start, end = end)
+	data = connection.execute(text(query), start = start, end = end, modeId = modeId)
 
-	points = getPlayerPoints(start, useStart, end, useEnd)
-	times = getTimePlayed(start, useStart, end, useEnd)
+	points = getPlayerPoints(start, useStart, end, useEnd, modeId)
+	times = getTimePlayed(start, useStart, end, useEnd, modeId)
 
 
 	if request.is_xhr:
 		return render_template("leaderboard/_table.html", data = data, points = points, times = times)
 	else:
-		return render_template("leaderboard/index.html", data = data, points = points, times = times, startDate = startFormatted, endDate = endFormatted)
+		return render_template("leaderboard/index.html", data = data, points = points, times = times, startDate = startFormatted, endDate = endFormatted, mode = mode)
 
 @app.route("/leaderboard/players/<int:playerId>/", methods = ["GET"])
 def leaderboard_players(playerId):
+
+	modeId = "1"
 
 	player = model.Model().selectById(playerModel.Player, playerId)
 	players = model.Model().select(playerModel.Player)
@@ -176,27 +183,27 @@ def leaderboard_players(playerId):
 	stats = {}
 
 	for p in players:
-		teamIds = getPlayerTeams(player.id, p.id)
+		teamIds = getPlayerTeams(player.id, p.id, modeId)
 		if len(teamIds) == 0:
 			continue
 
 		stat = {}
 		stat["player"] = p
-		stat["theirs"] = getMarksPerRound(p.id, teamIds)
-		stat["yours"] = getMarksPerRound(player.id, teamIds)
+		stat["theirs"] = getMarksPerRound(p.id, teamIds, modeId)
+		stat["yours"] = getMarksPerRound(player.id, teamIds, modeId)
 		stat["games"], stat["wins"], stat["losses"], stat["winPercentage"] = getWinsAndLosses(teamIds)
 		stats[p.id] = stat
 
 	return render_template("leaderboard/players.html", player = player, stats = stats)
 
-def getMarksPerRound(playerId, teamIds):
+def getMarksPerRound(playerId, teamIds, modeId):
 
 	query = "SELECT (\
 		SELECT COUNT(*)\
 		FROM marks m\
 		LEFT JOIN matches g ON m.matchId = g.id\
 		WHERE 1 = 1\
-			AND g.modeId = 1\
+			AND g.modeId = " + modeId + "\
 			AND g.complete = 1\
 			AND m.value != 0\
 			AND m.playerId = :playerId\
@@ -208,7 +215,7 @@ def getMarksPerRound(playerId, teamIds):
 			FROM marks r\
 			LEFT JOIN matches g on r.matchId = g.id\
 			WHERE 1 = 1\
-				AND g.modeId = 1\
+				AND g.modeId = " + modeId + "\
 				AND g.complete = 1\
 				AND r.teamId IN (" + teamIds + ")\
 			GROUP BY r.playerId, r.matchId, r.teamId, r.round, r.game\
@@ -227,14 +234,14 @@ def getMarksPerRound(playerId, teamIds):
 
 	return marksPerRound
 
-def getPlayerTeams(player1Id, player2Id):
+def getPlayerTeams(player1Id, player2Id, modeId):
 
 	query = "\
 		SELECT tp.teamId, count(tp.teamId) as num\
 		FROM teams_players tp\
 		LEFT JOIN teams t ON tp.teamId = t.id\
 		LEFT JOIN matches g ON g.id = t.matchId\
-		WHERE tp.playerId IN(:player1Id, :player2Id) AND g.modeId = 1 AND g.complete = 1\
+		WHERE tp.playerId IN(:player1Id, :player2Id) AND g.modeId = " + modeId + " AND g.complete = 1\
 		GROUP BY tp.teamId\
 		HAVING num > 1\
 		ORDER by tp.teamId, tp.playerId\
@@ -250,7 +257,7 @@ def getPlayerTeams(player1Id, player2Id):
 
 	return ids[:-1]
 
-def getPlayerPoints(start, useStart, end, useEnd):
+def getPlayerPoints(start, useStart, end, useEnd, modeId):
 
 	data = {}
 
@@ -258,7 +265,7 @@ def getPlayerPoints(start, useStart, end, useEnd):
 		SELECT m.*\
 		FROM marks m\
 		LEFT JOIN matches g ON m.matchId = g.id\
-		WHERE g.modeId = 1 AND g.complete = 1\
+		WHERE g.modeId = " + modeId + " AND g.complete = 1\
 	"
 
 	if useStart:
@@ -301,7 +308,7 @@ def getPlayerPoints(start, useStart, end, useEnd):
 
 	return points
 
-def getTimePlayed(start, useStart, end, useEnd):
+def getTimePlayed(start, useStart, end, useEnd, modeId):
 
 	times = {}
 	players = model.Model().select(playerModel.Player)
@@ -318,7 +325,7 @@ def getTimePlayed(start, useStart, end, useEnd):
 		LEFT JOIN teams_players tp ON p.id = tp.playerId\
 		LEFT JOIN teams t ON tp.teamId = t.id\
 		LEFT JOIN matches g ON t.matchId = g.id\
-		WHERE g.complete = 1 AND g.modeId = 1\
+		WHERE g.complete = 1 AND g.modeId = " + modeId + "\
 	"
 
 	if useStart:

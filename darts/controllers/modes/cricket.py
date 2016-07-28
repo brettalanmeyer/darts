@@ -188,29 +188,7 @@ def cricket_play(id):
 
 	# randomize values for this game mode
 	if mode.mode == "random-crickets":
-
-		# 10% of the time, it works, everytime
-		groupNumbers = (random.randint(0,9) == 1)
-		if groupNumbers:
-			# order of numbers arranged on dart board
-			values = [1,18,4,13,6,10,15,2,17,3,19,7,16,8,11,14,9,12,5,20]
-
-			# double length of numbers to eliminate midpoint bias
-			values.extend(values)
-
-			start = random.randint(0, len(values) - 7)
-			end = start + 6
-			points = values[start:end]
-
-		else:
-			values = []
-			for i in range(1,21):
-				values.append(i);
-			random.shuffle(values)
-			points = values[0:6]
-
-		points.sort(reverse = True)
-		data["data"] = ",".join(map(str, points))
+		data["data"] = random_cricket_points()
 
 	model.Model().update(matchModel.Match, match.id, data)
 	return redirect("/matches/%d/modes/cricket/play/" % id)
@@ -409,7 +387,14 @@ def getMarksPerRound(matchId, playerId, game):
 @app.route("/matches/<int:id>/modes/cricket/again/", methods = ["POST"])
 def cricket_again(id):
 	match = model.Model().selectById(matchModel.Match, id)
-	newMatch = matchModel.Match(match.modeId, match.players, request.form["games"], 1, 1, True, 0, datetime.now())
+	mode = model.Model().selectById(modeModel.Mode, match.modeId)
+
+	data = None
+	# randomize values for this game mode
+	if mode.mode == "random-crickets":
+		data = random_cricket_points()
+
+	newMatch = matchModel.Match(match.modeId, match.players, request.form["games"], 1, 1, True, 0, data, datetime.now())
 	model.Model().create(newMatch)
 
 	playerIds = []
@@ -464,3 +449,29 @@ def cricket_get_turn(match):
 			turn = teamPlayers[0].playerId
 
 	return turn
+
+def random_cricket_points():
+
+	# 10% of the time, it works, everytime
+	groupNumbers = (random.randint(0,9) == 1)
+
+	if groupNumbers:
+		# order of numbers arranged on dart board
+		values = [1,18,4,13,6,10,15,2,17,3,19,7,16,8,11,14,9,12,5,20]
+
+		# double length of numbers to eliminate midpoint bias
+		values.extend(values)
+
+		start = random.randint(0, len(values) - 7)
+		end = start + 6
+		points = values[start:end]
+
+	else:
+		values = []
+		for i in range(1,21):
+			values.append(i);
+		random.shuffle(values)
+		points = values[0:6]
+
+	points.sort(reverse = True)
+	return ",".join(map(str, points))

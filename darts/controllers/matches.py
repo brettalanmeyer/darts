@@ -25,7 +25,8 @@ def matches_index(page):
 
 	data = []
 
-	matches = model.Model().select(matchModel.Match).filter_by(ready = True, modeId = 1).order_by(desc("createdAt"))
+	matches = model.Model().select(matchModel.Match).filter(matchModel.Match.ready == True, ((matchModel.Match.modeId == 1) | (matchModel.Match.modeId == 21))).order_by(desc("createdAt"))
+
 	paging["total"] = matches.count()
 	matches = matches.limit(paging["limit"]).offset((page - 1) * paging["limit"]).all()
 
@@ -45,8 +46,14 @@ def matches_index(page):
 
 	for match in matches:
 
+		if match.modeId == 1:
+			mode = "Cricket"
+		else:
+			mode = "Random Crickets"
+
 		matchData = {
 			"id": match.id,
+			"mode": mode,
 			"date": "{:%b %d, %Y} ".format(match.createdAt),
 			"time": "{:%I:%M %p}".format(match.createdAt).lower(),
 			"teams": []

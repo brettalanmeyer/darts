@@ -414,6 +414,9 @@ def cricket_again(id):
 
 	return redirect("/matches/%d/modes/cricket/play/" % newMatch.id)
 
+@app.route("/matches/<int:matchId>/modes/cricket/stats", methods = ["GET"])
+def cricket_stats(matchId):
+	return Response(json.dumps(cricket_match_stats(matchId)), status = 200, mimetype = "application/json")
 
 @app.route("/matches/modes/cricket/styles.css", methods = ["GET"])
 def cricket_styles():
@@ -475,3 +478,63 @@ def random_cricket_points():
 
 	points.sort(reverse = True)
 	return ",".join(map(str, points))
+
+def cricket_match_stats(matchId):
+
+	query = "\
+		SELECT p.id, p.name, m.data, m.games\
+		FROM players p\
+		LEFT JOIN teams_players tp ON p.id = tp.playerId\
+		LEFT JOIN teams t ON tp.teamId  = t.id\
+		LEFT JOIN matches m ON t.matchId = m.id\
+		WHERE m.id = :matchId;\
+	"
+
+	session = model.Model().getSession()
+	connection = session.connection()
+	data = connection.execute(text(query), matchId = matchId)
+
+	stats = {
+		"games": 0,
+		"players": []
+	}
+	players = {}
+	points = ["Bull","20","19","18","17","16","15","Miss"]
+
+	for datum in data:
+		players[int(datum.id)] = {
+			"name": datum.name,
+			"games": {},
+			"total": {}
+		}
+		if datum.data:
+			points = datum.data.split(",")
+			points.insert(0, "Miss")
+			points.append("Bull")
+		stats["games"] = int(datum.games)
+
+	for id in players:
+		for point in points:
+			players[id]["total"][point] = 0
+
+		for i in range(1, datum.games + 1):
+			players[id]["games"][i] = {}
+			for point in points:
+				players[id]["games"][i][point] = 0
+
+	marks = model.Model().select(markModel.Mark).filter_by(matchId = matchId)
+
+	for mark in marks:
+		point = str(mark.value)
+		if point == "0":
+			point = "Miss"
+		elif point == "25":
+			point = "Bull"
+
+		players[int(mark.playerId)]["games"][mark.game][point] = players[int(mark.playerId)]["games"][mark.game][point] + 1
+		players[int(mark.playerId)]["total"][point] = players[int(mark.playerId)]["total"][point] + 1
+
+	for id in players:
+		stats["players"].append(players[id])
+
+	return stats

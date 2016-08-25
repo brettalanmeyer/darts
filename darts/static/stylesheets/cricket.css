@@ -282,6 +282,73 @@ header {
 	left: 4px;
 }
 
+.button-label.complete {
+	color: #666;
+	font-weight: bold;
+	font-size: 13px;
+}
+
 .time-label {
 	right: 4px;
+}
+
+.modal-stats {
+	overflow: hidden;
+	overflow-y: auto;
+}
+
+.modal-stats h1 {
+	margin: 16px auto;
+}
+
+.match-stats-container {
+	margin: 8px;
+	border-radius: 8px;
+	background: rgba(255, 255, 255, 0.8);
+	overflow: hidden;
+}
+
+.match-stats-container .stat-player {
+	border: solid 1px #ccc;
+	padding: 8px;
+	overflow: hidden;
+}
+
+.match-stats-container .stat-player .name {
+	display: block;
+	margin-bottom: 8px;
+	font-weight: bold;
+}
+
+.match-stats-container .point-player {
+	float: left;
+	border-right: solid 1px #ccc;
+}
+
+.match-stats-container .stat-player > .point-player:last-child {
+	border: none;
+}
+
+.match-stats-container.games-5 .point-player {
+	width: 16.667%;
+}
+
+.match-stats-container.games-3 .point-player {
+	width: 25%;
+}
+
+.match-stats-container.games-1 .point-player {
+	width: 50%;
+}
+
+.match-stats-container .stat-point-label {
+	display: inline-block;
+	width: 35px;
+	text-align: right;
+	padding-right: 4px;
+}
+
+.stats-btn-container {
+	margin: 8px;
+
 }

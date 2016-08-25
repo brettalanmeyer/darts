@@ -183,6 +183,8 @@
 				</button>
 			</form>
 
+			<br />
+
 			<form action="/matches/{{ match.id }}/modes/cricket/again/" method="POST">
 				<input type="hidden" name="games" value="{{ match.games }}" />
 				<button class="btn btn-default btn-lg btn-block btn-next-round hidden">
@@ -208,6 +210,11 @@
 				</button>
 			</form>
 
+			<br />
+
+			<button class="btn btn-default btn-lg btn-block btn-stats-show hidden">
+				Stats
+			</button>
 		</div>
 	</div>
 
@@ -217,6 +224,14 @@
 		<div class="button-group">
 			<a class="btn btn-default btn-lg home-yes">Yes</a>
 			<a class="btn btn-default btn-lg home-no">No</a>
+		</div>
+	</div>
+
+	<div class="modal-box modal-stats">
+		<h1>Mark Stats</h1>
+		<div class="match-stats-container"></div>
+		<div class="stats-btn-container">
+			<button class="btn btn-default btn-lg btn-block btn-stats-done">Done</button>
 		</div>
 	</div>
 

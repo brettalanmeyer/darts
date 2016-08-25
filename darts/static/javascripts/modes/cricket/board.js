@@ -1,21 +1,38 @@
 $(function(){
 
+	var matchId = $("input[name=matchId]").val();
+	var baseUrl = "/matches/" + matchId + "/modes/cricket";
+
+	var statsModal = $(".modal-stats");
+	var statsContainer = $(".match-stats-container");
+	var nextRoundModal = $(".modal-next-round");
+	var displayNextRoundWhenStatsAreDone = false;
+
+	$(".btn-stats-show").on("click", stats);
+	$(".btn-stats-done").on("click", function(){
+		statsModal.hide();
+		if(displayNextRoundWhenStatsAreDone){
+			nextRoundModal.show();
+		}
+	});
+
+
 	$(".score").first().addClass("target turn").find(".button-label").html("Turn");
 	$(".score").last().addClass("target home").find(".button-label").html("Home");
-
 
 	indicateClosedPoints();
 	var complete = $("input[name=complete]").val() == "1";
 	if(complete){
+		$(".home").find(".button-label").addClass("complete");
+		$(".turn").find(".button-label").html("Stats").addClass("complete");
 		$(".home").on("click", function(){
 			window.location = "/";
 		});
+		$(".turn").on("click", stats);
 		return;
 	}
 
 	var spectatorInterval;
-	var matchId = $("input[name=matchId]").val();
-
 	if(window.location.search == "?spectator"){
 		spectatorInterval = setInterval(spectate, 2500);
 		return false;
@@ -61,7 +78,8 @@ $(function(){
 
 	var team1Id = $(".score").first().data("teamid");
 	var team2Id = $(".score").last().data("teamid");
-	var nextRoundModal = $(".modal-next-round");
+
+
 	var homeModal = $(".modal-home");
 	var games = parseInt($("input[name=games]").val());
 	var game = parseInt($("input[name=game]").val());
@@ -79,7 +97,6 @@ $(function(){
 	var numberOfMarks = 0;
 	var valueOfMark;
 
-	var baseUrl = "/matches/" + matchId + "/modes/cricket";
 
 	highlightTeam();
 
@@ -244,6 +261,50 @@ $(function(){
 		$.post(baseUrl + "/teams/" + id + "/game/" + game + "/score/" + getScore(id) + "/loss/");
 	}
 
+	function stats(){
+		nextRoundModal.hide();
+
+		var playerContainerTemplate = $("<div />").addClass("stat-player");
+		var pointContainerTemplate = $("<div />").addClass("point-player");
+
+		$.get(baseUrl + "/stats").done(function(data){
+			var players = data.players;
+			var games = data.games;
+
+			statsContainer.empty().addClass("games-" + games);
+
+			for(var i = 0; i < players.length; i++){
+				var playerContainer = playerContainerTemplate.clone();
+				var player = players[i];
+
+				playerContainer.append('<span class="name">' + player.name + "</span>");
+
+				var pointContainer = pointContainerTemplate.clone();
+				pointContainer.append("Total:<br />");
+				for(var points in player.total){
+					pointContainer.append('<span class="stat-point-label">' + points + ":</span>");
+					pointContainer.append('<span class="stat-point-value">' + player.total[points] + "</span><br />");
+				}
+				playerContainer.append(pointContainer);
+
+				for(var game in player.games){
+					var pointContainer = pointContainerTemplate.clone();
+					pointContainer.append("Game " + game + "<br />");
+
+					for(var points in player.games[game]){
+						pointContainer.append('<span class="stat-point-label">' + points + ":</span>");
+						pointContainer.append('<span class="stat-point-value">' + player.games[game][points] + "</span><br />");
+					}
+					playerContainer.append(pointContainer);
+				}
+
+				statsContainer.append(playerContainer);
+			}
+
+			statsModal.show();
+		});
+	}
+
 	function matchWin(id){
 		$.post(baseUrl + "/teams/" + id + "/win/");
 	}
@@ -253,7 +314,6 @@ $(function(){
 	}
 
 	function nextRound(num, winnerId, loserId){
-
 		nextRoundModal.show();
 
 		if($("input[name=result][data-win=1][data-teamid=" + winnerId + "]").length >= Math.floor(games / 2)){
@@ -261,6 +321,7 @@ $(function(){
 			nextRoundModal.find("button").removeClass("hidden").first().html("Done");
 			matchWin(winnerId);
 			matchLoss(loserId);
+			displayNextRoundWhenStatsAreDone = true;
 		} else {
 			nextRoundModal.find("h1").html("Team " + num + "<br />Wins Round " + game + "!");
 		}

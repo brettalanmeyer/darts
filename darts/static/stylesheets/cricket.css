@@ -348,6 +348,12 @@ header {
 	padding-right: 4px;
 }
 
+.match-stats-container .stat-point-value {
+	display: inline-block;
+	width: 25px;
+	text-align: left;
+}
+
 .stats-btn-container {
 	margin: 8px;
 

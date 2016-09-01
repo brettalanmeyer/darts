@@ -354,6 +354,11 @@ header {
 	text-align: left;
 }
 
+.match-stats-container .stat-point-label.pointed,
+.match-stats-container .stat-point-value.pointed {
+	font-weight: bold;
+}
+
 .stats-btn-container {
 	margin: 8px;
 

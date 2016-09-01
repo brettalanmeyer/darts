@@ -282,8 +282,8 @@ $(function(){
 				var pointContainer = pointContainerTemplate.clone();
 				pointContainer.append("Total:<br />");
 				for(var points in player.total){
-					pointContainer.append('<span class="stat-point-label">' + points + ":</span>");
-					pointContainer.append('<span class="stat-point-value">' + player.total[points] + "</span><br />");
+					pointContainer.append('<span class="stat-point-label ' + (player.total[points] > 3 ? 'pointed' : '') + '">' + points + ":</span>");
+					pointContainer.append('<span class="stat-point-value ' + (player.total[points] > 3 ? 'pointed' : '') + '">' + player.total[points] + "</span><br />");
 				}
 				playerContainer.append(pointContainer);
 
@@ -292,8 +292,8 @@ $(function(){
 					pointContainer.append("Game " + game + "<br />");
 
 					for(var points in player.games[game]){
-						pointContainer.append('<span class="stat-point-label">' + points + ":</span>");
-						pointContainer.append('<span class="stat-point-value">' + player.games[game][points] + "</span><br />");
+						pointContainer.append('<span class="stat-point-label ' + (player.total[points] > 3 ? 'pointed' : '') + '">' + points + ":</span>");
+						pointContainer.append('<span class="stat-point-value ' + (player.total[points] > 3 ? 'pointed' : '') + '">' + player.games[game][points] + "</span><br />");
 					}
 					playerContainer.append(pointContainer);
 				}

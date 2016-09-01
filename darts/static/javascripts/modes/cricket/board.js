@@ -292,8 +292,8 @@ $(function(){
 					pointContainer.append("Game " + game + "<br />");
 
 					for(var points in player.games[game]){
-						pointContainer.append('<span class="stat-point-label ' + (player.games[game][points] > 3 ? 'pointed' : '') + '">' + points + ":</span>");
-						pointContainer.append('<span class="stat-point-value ' + (player.games[game][points] > 3 ? 'pointed' : '') + '">' + player.games[game][points] + "</span><br />");
+						pointContainer.append('<span class="stat-point-label ' + (points != "Miss" && player.games[game][points] > 3 ? 'pointed' : '') + '">' + points + ":</span>");
+						pointContainer.append('<span class="stat-point-value ' + (points != "Miss" && player.games[game][points] > 3 ? 'pointed' : '') + '">' + player.games[game][points] + "</span><br />");
 					}
 					playerContainer.append(pointContainer);
 				}

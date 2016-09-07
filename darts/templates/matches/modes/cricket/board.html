@@ -229,7 +229,14 @@
 
 	<div class="modal-box modal-stats">
 		<h1>Mark Stats</h1>
-		<div class="match-stats-container"></div>
+		<div class="modal-stats-container">
+			<ul class="nav nav-tabs">
+				<li role="presentation" class="active" data-tab="match-stats">Total Marks</li>
+				<li role="presentation" data-tab="match-graphs">Marks per Round Graphs</li>
+			</ul>
+			<div data-tab-id="match-stats" class="match-stats-container"></div>
+			<div data-tab-id="match-graphs" class="match-graphs-container"></div>
+		</div>
 		<div class="stats-btn-container">
 			<button class="btn btn-default btn-lg btn-block btn-stats-done">Done</button>
 		</div>
@@ -239,7 +246,7 @@
 
 {% block footer %}
 	{{ super() }}
-	{% assets filters="jsmin", output="gen/cricket-board.js", "javascripts/modes/cricket/board.js" %}
+	{% assets filters="jsmin", output="gen/cricket-board.js", "https://www.gstatic.com/charts/loader.js", "javascripts/modes/cricket/board.js", "javascripts/modes/cricket/charts.js" %}
 		<script type="text/javascript" src="{{ ASSET_URL }}"></script>
 	{% endassets %}
 {% endblock %}

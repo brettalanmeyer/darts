@@ -496,7 +496,8 @@ def cricket_match_stats(matchId):
 
 	stats = {
 		"games": 0,
-		"players": []
+		"players": [],
+		"graph": []
 	}
 	players = {}
 	points = ["Bull","20","19","18","17","16","15","Miss"]
@@ -536,5 +537,28 @@ def cricket_match_stats(matchId):
 
 	for id in players:
 		stats["players"].append(players[id])
+
+	query2 = "\
+		SELECT m.playerId, p.name, m.game, m.round, GROUP_CONCAT(m.value) as points, COUNT(*) as total\
+		FROM marks m\
+		LEFT JOIN players p on m.playerId = p.id\
+		WHERE matchId = :matchId\
+		GROUP BY m.playerId, m.game, m.round\
+		ORDER BY m.playerId, m.game, m.round;\
+	"
+
+	session = model.Model().getSession()
+	connection = session.connection()
+	graphData = connection.execute(text(query2), matchId = matchId)
+
+	for row in graphData:
+		stats["graph"].append({
+			"playerId": row.playerId,
+			"name": row.name,
+			"game": row.game,
+			"round": row.round,
+			"points": row.points,
+			"total": row.total
+		})
 
 	return stats

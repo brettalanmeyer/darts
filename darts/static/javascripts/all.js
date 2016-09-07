@@ -22,4 +22,14 @@ $(function(){
 		deleteModal.hide();
 	});
 
+
+	$("[data-tab]").on("click", function(){
+		$("[data-tab]").removeClass("active");
+		var source = $(this).addClass("active");
+		$("[data-tab-id]").hide();
+		$("[data-tab-id=" + source.data("tab") + "]").show();
+	});
+
+	$("[data-tab].active").trigger("click");
+
 });

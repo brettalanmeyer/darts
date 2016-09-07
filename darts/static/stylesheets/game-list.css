@@ -1,5 +1,17 @@
-.table > tbody > tr {
-	cursor: pointer;
+.table > tbody > tr > td.link {
+	padding: 0;
+}
+
+.table > tbody > tr > td.link > a {
+	color: #333;
+	display: block;
+	width: 100%;
+	padding: 8px;
+	overflow: hidden;
+}
+
+.table > tbody > tr > td.link > a:hover {
+	text-decoration: none;
 }
 
 .table > tbody > tr:active td {
@@ -9,7 +21,7 @@
 .table > tbody > tr > td {
 	vertical-align: middle;
 }
-.table > tbody > tr > td > span {
+.table > tbody > tr > td span {
 	display: block;
 	overflow: hidden;
 }

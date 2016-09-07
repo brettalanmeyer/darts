@@ -302,6 +302,9 @@ $(function(){
 			}
 
 			statsModal.show();
+
+			charts(data.graph);
+
 		});
 	}
 

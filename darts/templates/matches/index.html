@@ -20,19 +20,24 @@
 
 				{% for match in matches %}
 
-					<tr data-href="/matches/{{ match["id"] }}/modes/cricket/play/">
+					{% set url = "/matches/" + match["id"]|string + "/modes/cricket/play/" %}
 
-						<td class="game-date">
-							{{ match["date"] }}<br />
-							{{ match["time"] }}
+					<tr>
+
+						<td class="game-date link">
+							<a href="{{ url }}">
+								{{ match["date"] }}<br />
+								{{ match["time"] }}
+							</a>
 						</td>
 
-						<td>{{ match["mode"] }}</td>
+						<td class="link"><a href="{{ url }}">{{ match["mode"] }}</a></td>
 
 						{% set used = False %}
 						{% for team in match["teams"] %}
 
-								<td class="game-team-players">
+							<td class="game-team-players link">
+								<a href="{{ url }}">
 									{% if team.win %}
 										<div class="game-team-result">W</div>
 									{% elif team.loss %}
@@ -42,9 +47,11 @@
 									{% for player in team["players"] %}
 										<div class="player">{{ player }}</div>
 									{% endfor %}
-								</td>
+								</a>
+							</td>
 
-								<td class="game-rounds">
+							<td class="game-rounds link">
+								<a href="{{ url }}">
 									{% if results.has_key(match.id) and results[match.id].has_key(team.id) %}
 										{% set round = 1 %}
 										{% for result in results[match.id][team.id] %}
@@ -59,11 +66,11 @@
 											{% set round = round + 1 %}
 										{% endfor %}
 									{% endif %}
-								</td>
-
+								</a>
+							</td>
 
 							{% if not used %}
-								<td class="game-vs">vs</td>
+								<td class="game-vs link"><a href="{{ url }}">vs</a></td>
 							{% endif %}
 							{% set used = True %}
 
@@ -110,13 +117,4 @@
 
 	</div>
 
-{% endblock %}
-
-{% block footer %}
-	{{ super() }}
-	<script>
-		$("tr").on("click", function(){
-			window.location = $(this).data("href");
-		});
-	</script>
 {% endblock %}

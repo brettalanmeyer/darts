@@ -92,11 +92,7 @@ $(function(){
 
 	var turnTimeout;
 	var turnDelay = 5000;
-
-	var markCounter = $("<span />").addClass("mark-counter");
-	var numberOfMarks = 0;
 	var valueOfMark;
-
 
 	highlightTeam();
 
@@ -147,19 +143,9 @@ $(function(){
 
 			if(point != valueOfMark){
 				valueOfMark = point;
-				numberOfMarks = 0;
 			}
 
-			numberOfMarks++;
-			markCounter.clone().html(numberOfMarks).hide().appendTo(source).fadeIn(0, function(){
-				var newMarkCounter = $(this);
-				setTimeout(function(){
-					newMarkCounter.fadeOut(100, function(){
-						$(this).remove();
-					});
-				}, 250)
-			});
-
+			scoreMarksForPoints(source, point);
 		}
 
 		if( hits >= 3 && !closed ){
@@ -251,6 +237,9 @@ $(function(){
 		$.post(baseUrl + "/players/" + playerId + "/turn/");
 		highlightTeam();
 		numberOfMarks = 0;
+
+		clearMarksForPoints();
+
 	}
 
 	function win(id){
@@ -354,6 +343,8 @@ $(function(){
 	}
 
 	function undo(){
+		clearTimeout(turnTimeout);
+
 		return $.post(baseUrl + "/undo/", function(response){
 			if(response.valid){
 
@@ -376,6 +367,8 @@ $(function(){
 					current.find(".current-round-points").html(current.data("score"));
 				}
 				indicateClosedPoints();
+
+				removeMarksForPoints(awarded, response.value);
 			}
 		});
 	}
@@ -425,5 +418,37 @@ $(function(){
 			markStyleIdIndex = 0;
 		}
 	});
+
+
+	var numberOfMarks = {};
+
+	function scoreMarksForPoints(source, point){
+		if(!(point in numberOfMarks)){
+			numberOfMarks[point] = 0;
+		}
+
+		numberOfMarks[point]++;
+
+		source.find(".mark-counter").html(numberOfMarks[point]);
+	}
+
+	function clearMarksForPoints(){
+		numberOfMarks = {};
+		$(".mark-counter").empty();
+	}
+
+	function removeMarksForPoints(source, point){
+		if(!(point in numberOfMarks)){
+			return;
+		}
+
+		numberOfMarks[point]--;
+
+		source.find(".mark-counter").html(numberOfMarks[point]);
+
+		if(numberOfMarks[point] == 0){
+			source.find(".mark-counter").empty();
+		}
+	}
 
 });

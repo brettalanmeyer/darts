@@ -269,6 +269,10 @@ header {
 	user-select: none;
 }
 
+.mark-counter:empty {
+	display: none;
+}
+
 .button-label,
 .time-label {
 	position: absolute;

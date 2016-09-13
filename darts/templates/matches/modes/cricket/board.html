@@ -93,7 +93,9 @@
 				<div class="point-value" data-points="{{ point }}">{{ point }}</div>
 
 				{% for team in match["teams"] %}
-					<div class="target awarded mark-style-{{ markStyle.id }}" data-teamid="{{ team.id }}" data-points="{{ point }}" data-hits="{{ team["marks"][point] }}"></div>
+					<div class="target awarded mark-style-{{ markStyle.id }}" data-teamid="{{ team.id }}" data-points="{{ point }}" data-hits="{{ team["marks"][point] }}">
+						<span class="mark-counter" data-points="{{ point }}"></span>
+					</div>
 				{% endfor %}
 
 			</div>
@@ -103,7 +105,9 @@
 		<div class="points">
 			<div class="point-value" data-points="25">B</div>
 			{% for team in match["teams"] %}
-				<div class="target awarded mark-style-{{ markStyle.id }}" data-teamid="{{ team.id }}" data-points="25" data-hits="{{ team["marks"][25] }}"></div>
+				<div class="target awarded mark-style-{{ markStyle.id }}" data-teamid="{{ team.id }}" data-points="25" data-hits="{{ team["marks"][25] }}">
+					<span class="mark-counter" data-points="25"></span>
+				</div>
 			{% endfor %}
 		</div>
 

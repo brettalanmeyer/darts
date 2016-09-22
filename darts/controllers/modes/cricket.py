@@ -239,12 +239,16 @@ def cricket_players_redo(id):
 @app.route("/matches/<int:id>/modes/cricket/next/", methods = ["POST"])
 def cricket_next(id):
 	match = model.Model().selectById(matchModel.Match, id)
+	mode = model.Model().selectById(modeModel.Mode, match.modeId)
 
 	if match.complete:
 		return redirect("/")
 
+	if mode.mode == "random-crickets":
+		data = random_cricket_points()
+
 	turn = cricket_get_turn(match)
-	model.Model().update(matchModel.Match, match.id, { "game": match.game + 1, "round": 1, "turn": turn })
+	model.Model().update(matchModel.Match, match.id, { "game": match.game + 1, "round": 1, "turn": turn, "data": data })
 
 	return redirect("/matches/%d/modes/cricket/play/" % match.id)
 

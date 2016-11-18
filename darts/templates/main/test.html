@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+	<div id="content"></div>
+
+	<!-- <iframe src="https://mail.inpriva.net/testmobile/" width="500" height="500"></iframe> -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script>
+
+		$.getJSON("https://mail.inpriva.net/testmobile/").done(function(response){
+			$("#content").html(response);
+		});
+
+	</script>
+
+</body>
+</html>s

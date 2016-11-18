@@ -17,3 +17,12 @@ MYSQL_DATABASE=''
 
 * single and 3-player options
 * undo after game complete, or confirm end of game before proceeding
+
+
+write scripts to update old data to new format
+remove unused columns and tables in database
+remove unused columns in entity code
+check stats
+test
+
+

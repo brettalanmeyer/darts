@@ -41,25 +41,25 @@
 											<span class="rnd">1:</span>
 											<span class="val r1">{% if match.game >= 1 %}{{ player.mpr1 }}{% else %}-{% endif %}</span>
 										</div>
-										{% if match.games >= 2 %}
+										{% if match.numGames >= 2 %}
 											<div class="value">
 												<span class="rnd">2:</span>
 												<span class="val r2">{% if match.game >= 2 %}{{ player.mpr2 }}{% else %}-{% endif %}</span>
 											</div>
 										{% endif %}
-										{% if match.games >= 3 %}
+										{% if match.numGames >= 3 %}
 											<div class="value">
 												<span class="rnd">3:</span>
 												<span class="val r3">{% if match.game >= 3 %}{{ player.mpr3 }}{% else %}-{% endif %}</span>
 											</div>
 										{% endif %}
-										{% if match.games >= 4 %}
+										{% if match.numGames >= 4 %}
 											<div class="value">
 												<span class="rnd">4:</span>
 												<span class="val r4">{% if match.game >= 4 %}{{ player.mpr4 }}{% else %}-{% endif %}</span>
 											</div>
 										{% endif %}
-										{% if match.games >= 5 %}
+										{% if match.numGames >= 5 %}
 											<div class="value">
 												<span class="rnd">5:</span>
 												<span class="val r5">{% if match.game >= 5 %}{{ player.mpr5 }}{% else %}-{% endif %}</span>
@@ -123,8 +123,29 @@
 
 					<div class="score-row">
 						<div class="round-scores">
-							{% for i in range(1, 5) %}
-								{% if match.games > i %}
+							{% for i in range(0, match["numGames"] - 1) %}
+								{% set game = match["games"][i] %}
+								<span class="round-score">
+									<label>R:</label>
+									{% if team.id == game.winner %}
+										{{ game["winnerScore"] }}
+									{% elif team.id == game.loser %}
+										{{ game["loserScore"] }}
+									{% else %}
+										-
+									{% endif %}
+
+									{% if team.id == game.winner %}
+										W
+									{% endif %}
+									{% if team.id == game.loser  %}
+										L
+									{% endif %}
+								</span>
+							{% endfor %}
+
+							<!-- {% for i in range(1, 5) %}
+								{% if match.numGames > i %}
 									<span class="round-score">
 										<label>R{{ i }}:</label>
 										{% if match.game > i or match.complete %}
@@ -141,9 +162,9 @@
 										{% endif %}
 									</span>
 								{% endif %}
-							{% endfor %}
+							{% endfor %} -->
 						</div>
-						<div class="current-round-points games-{{match.games}}">
+						<div class="current-round-points games-{{ match.numGames }}">
 							{{ team["marks"]["points"] }}
 						</div>
 					</div>
@@ -155,7 +176,7 @@
 	</div>
 
 	<input type="hidden" name="matchId" value="{{ match.id }}" />
-	<input type="hidden" name="games" value="{{ match.games }}" />
+	<input type="hidden" name="games" value="{{ match.numGames }}" />
 	<input type="hidden" name="game" value="{{ match.game }}" />
 	<input type="hidden" name="round" value="{{ match.round }}" />
 	<input type="hidden" name="players" value="{{ match.players }}" />
@@ -165,15 +186,15 @@
 	<input type="hidden" name="markStyleId" value="{{ markStyle.id }}" />
 	<input type="hidden" name="markStyleIds" value="{{ markStyleIds }}" />
 
-	{% for result in match["results"] %}
+	{% for gameItem in match["games"] %}
 		<input
 			type="hidden"
 			name="result"
-			data-game="{{ result.game }}"
-			data-teamid="{{ result.teamId }}"
-			data-score="{{ result.score }}"
-			data-win="{{ result.win }}"
-			data-loss="{{ result.loss }}"
+			data-game="{{ gameItem.game }}"
+			data-winner="{{ gameItem.winner }}"
+			data-loser="{{ gameItem.loser }}"
+			data-winnerScore="{{ gameItem.winnerScore }}"
+			data-loserScore="{{ gameItem.loserScore }}"
 		/>
 	{% endfor %}
 
@@ -190,7 +211,7 @@
 			<br />
 
 			<form action="/matches/{{ match.id }}/modes/cricket/again/" method="POST">
-				<input type="hidden" name="games" value="{{ match.games }}" />
+				<input type="hidden" name="games" value="{{ match.numGames }}" />
 				<button class="btn btn-default btn-lg btn-block btn-next-round hidden">
 					Play Again
 				</button>

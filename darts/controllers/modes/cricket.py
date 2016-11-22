@@ -244,6 +244,7 @@ def cricket_next(id):
 	if match.complete:
 		return redirect("/")
 
+	data = match.data
 	if mode.mode == "random-crickets":
 		data = random_cricket_points()
 

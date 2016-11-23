@@ -43,7 +43,7 @@ def leaderboard_index(modeName):
 			endFormatted = "{:%Y-%m-%d}".format(endDate)
 
 	if useEnd:
-		date = datetime.strptime(end, "%Y-%m-%d").date()
+		date = datetime.strptime(str(end), "%Y-%m-%d %H:%M:%S").date()
 		end = date + timedelta(days = 1)
 
 	query = "\

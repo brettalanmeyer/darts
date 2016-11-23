@@ -4,7 +4,6 @@ from darts.entities import player as playerModel
 from darts.entities import team as teamModel
 from darts.entities import team_player as teamPlayerModel
 from darts.entities import mark as markModel
-from darts.entities import result as resultModel
 from darts.entities import mode as modeModel
 from darts.entities import mark_style as markStyleModel
 from darts.entities import game as gameModel
@@ -59,7 +58,6 @@ def getGameData(id):
 	games = model.Model().select(gameModel.Game).filter_by(matchId = match.id)
 	game = games.filter_by(game = match.game).first()
 	mode = model.Model().selectById(modeModel.Mode, match.modeId)
-	results = model.Model().select(resultModel.Result).filter_by(matchId = match.id)
 	teams = model.Model().select(teamModel.Team).filter_by(matchId = match.id)
 
 	data = {
@@ -71,7 +69,6 @@ def getGameData(id):
 		"players": match.players,
 		"turn": game.turn,
 		"teams": [],
-		"results": [],
 		"points": map(int, game.data.split(",")),
 		"complete": match.complete,
 		"createdAt": str(match.createdAt).replace("-", "/")
@@ -85,28 +82,11 @@ def getGameData(id):
 			"marks": {
 				25: 0,
 				"points": 0
-			},
-			"results": []
+			}
 		}
 
 		for i in range(0, 21):
 			teamData["marks"][i] = 0
-
-		for i in range(1, 6):
-			results = model.Model().select(resultModel.Result).filter_by(matchId = match.id, teamId = team.id, game = i)
-			resultSet = {
-				"score": 0,
-				"win": 0,
-				"loss": 0
-			}
-
-			if results.count() > 0:
-				result = results.first()
-				resultSet["score"] = result.score
-				resultSet["win"] = result.win
-				resultSet["loss"] = result.loss
-
-			teamData["results"].append(resultSet)
 
 		players = model.Model().select(teamPlayerModel.TeamPlayer).filter_by(teamId = team.id)
 
@@ -278,9 +258,6 @@ def cricket_undo(matchId):
 		redirect = False
 		if match.game != mark.game:
 			redirect = True
-			results = model.Model().select(resultModel.Result).filter_by(matchId = matchId, game = mark.game)
-			for result in results:
-				model.Model().delete(resultModel.Result, result.id)
 
 		model.Model().update(matchModel.Match, matchId, { "game": mark.game, "round": mark.round, "turn": mark.playerId })
 		model.Model().delete(markModel.Mark, mark.id)

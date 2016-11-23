@@ -5,8 +5,8 @@ from darts.entities import player as playerModel
 from darts.entities import team as teamModel
 from darts.entities import team_player as teamPlayerModel
 from darts.entities import mark as markModel
-from darts.entities import result as resultModel
 from darts.entities import mode as modeModel
+from darts.entities import game as gameModel
 from darts import model
 from datetime import datetime
 from sqlalchemy import desc
@@ -35,14 +35,26 @@ def matches_index(page):
 	for player in players:
 		playerDict[player.id] = player
 
-	results = model.Model().select(resultModel.Result)
+	results = model.Model().select(gameModel.Game)
 	resultDict = {}
 	for result in results:
 		if not resultDict.has_key(result.matchId):
 			resultDict[result.matchId] = {}
-		if not resultDict[result.matchId].has_key(result.teamId):
-			resultDict[result.matchId][result.teamId] = []
-		resultDict[result.matchId][result.teamId].append(result)
+		if not resultDict[result.matchId].has_key(result.winner):
+			resultDict[result.matchId][result.winner] = []
+		if not resultDict[result.matchId].has_key(result.loser):
+			resultDict[result.matchId][result.loser] = []
+
+		resultDict[result.matchId][result.winner].append({
+			"score": result.winnerScore,
+			"win": True,
+			"loss": False
+		})
+		resultDict[result.matchId][result.loser].append({
+			"score": result.loserScore,
+			"win": False,
+			"loss": True
+		})
 
 	for match in matches:
 

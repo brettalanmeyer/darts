@@ -5,7 +5,6 @@ from darts.entities import player as playerModel
 from darts.entities import team as teamModel
 from darts.entities import team_player as teamPlayerModel
 from darts.entities import mark as markModel
-from darts.entities import result as resultModel
 from darts.entities import setting as settingModel
 from darts.entities import mode as modeModel
 from darts import model

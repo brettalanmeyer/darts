@@ -19,7 +19,7 @@ def matches_index(page):
 	paging = {
 		"total": 0,
 		"page": page,
-		"limit": 20,
+		"limit": 40,
 		"pages": 0
 	}
 

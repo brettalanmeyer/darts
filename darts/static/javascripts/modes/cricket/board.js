@@ -242,12 +242,13 @@ $(function(){
 
 	}
 
-	function win(id){
-		$.post(baseUrl + "/teams/" + id + "/game/" + game + "/score/" + getScore(id) + "/win/");
-	}
-
-	function loss(id){
-		$.post(baseUrl + "/teams/" + id + "/game/" + game + "/score/" + getScore(id) + "/loss/");
+	function result(winner, loser){
+		$.post(baseUrl + "/game/" + game + "/game-over/", {
+			winner: winner,
+			winnerScore: getScore(winner),
+			loser: loser,
+			loserScore: getScore(loser)
+		});
 	}
 
 	function stats(){
@@ -297,22 +298,13 @@ $(function(){
 		});
 	}
 
-	function matchWin(id){
-		$.post(baseUrl + "/teams/" + id + "/win/");
-	}
-
-	function matchLoss(id){
-		$.post(baseUrl + "/teams/" + id + "/loss/");
-	}
-
 	function nextRound(num, winnerId, loserId){
 		nextRoundModal.show();
 
-		if($("input[name=result][data-win=1][data-teamid=" + winnerId + "]").length >= Math.floor(games / 2)){
+		if($("input[name=result][data-winner=" + winnerId + "]").length >= Math.floor(games / 2)){
 			nextRoundModal.find("h1").html("Team " + num + "<br />Wins The Game!");
 			nextRoundModal.find("button").removeClass("hidden").first().html("Done");
-			matchWin(winnerId);
-			matchLoss(loserId);
+			$.post(baseUrl + "/match-over/");
 			displayNextRoundWhenStatsAreDone = true;
 		} else {
 			nextRoundModal.find("h1").html("Team " + num + "<br />Wins Round " + game + "!");
@@ -330,13 +322,11 @@ $(function(){
 		var team1Wins = team1Closed && team1Score >= team2Score;
 		var team2Wins = team2Closed && team2Score >= team1Score;
 
-		if(team1Wins){
-			win(team1Id);
-			loss(team2Id);
+		if(team1Wins) {
+			result(team1Id, team2Id);
 			nextRound(1, team1Id, team2Id);
 		} else if(team2Wins){
-			win(team2Id);
-			loss(team1Id);
+			result(team2Id, team1Id);
 			nextRound(2, team2Id, team1Id);
 		}
 

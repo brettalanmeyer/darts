@@ -17,3 +17,8 @@ MYSQL_DATABASE=''
 
 * single and 3-player options
 * undo after game complete, or confirm end of game before proceeding
+
+
+check stats
+undo winning mark results in ending game early
+test

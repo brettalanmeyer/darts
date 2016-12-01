@@ -4,9 +4,9 @@ from darts.entities import player as playerModel
 from darts.entities import team as teamModel
 from darts.entities import team_player as teamPlayerModel
 from darts.entities import mark as markModel
-from darts.entities import result as resultModel
 from darts.entities import mode as modeModel
 from darts.entities import mark_style as markStyleModel
+from darts.entities import game as gameModel
 from flask import Response, render_template, redirect, request
 from datetime import datetime
 from sqlalchemy import text
@@ -55,35 +55,24 @@ def cricket_board(id):
 
 def getGameData(id):
 	match = model.Model().selectById(matchModel.Match, id)
+	games = model.Model().select(gameModel.Game).filter_by(matchId = match.id)
+	game = games.filter_by(game = match.game).first()
 	mode = model.Model().selectById(modeModel.Mode, match.modeId)
-	results = model.Model().select(resultModel.Result).filter_by(matchId = match.id)
 	teams = model.Model().select(teamModel.Team).filter_by(matchId = match.id)
 
 	data = {
 		"id": int(match.id),
-		"games": match.games,
-		"game": match.game,
-		"round": match.round,
+		"numGames": games.count(),
+		"games": games,
+		"game": game.game,
+		"round": game.round,
 		"players": match.players,
-		"turn": match.turn,
+		"turn": game.turn,
 		"teams": [],
-		"results": [],
-		"points": [20, 19, 18, 17, 16, 15],
+		"points": map(int, game.data.split(",")),
 		"complete": match.complete,
 		"createdAt": str(match.createdAt).replace("-", "/")
 	}
-
-	if mode.mode == "random-crickets":
-		data["points"] = map(int, match.data.split(","))
-
-	for result in results:
-		data["results"].append({
-			"game": result.game,
-			"teamId": result.teamId,
-			"score": result.score,
-			"win": result.win,
-			"loss": result.loss
-		})
 
 	for team in teams:
 
@@ -93,28 +82,11 @@ def getGameData(id):
 			"marks": {
 				25: 0,
 				"points": 0
-			},
-			"results": []
+			}
 		}
 
 		for i in range(0, 21):
 			teamData["marks"][i] = 0
-
-		for i in range(1, 6):
-			results = model.Model().select(resultModel.Result).filter_by(matchId = match.id, teamId = team.id, game = i)
-			resultSet = {
-				"score": 0,
-				"win": 0,
-				"loss": 0
-			}
-
-			if results.count() > 0:
-				result = results.first()
-				resultSet["score"] = result.score
-				resultSet["win"] = result.win
-				resultSet["loss"] = result.loss
-
-			teamData["results"].append(resultSet)
 
 		players = model.Model().select(teamPlayerModel.TeamPlayer).filter_by(teamId = team.id)
 
@@ -181,16 +153,13 @@ def cricket_play(id):
 	team = model.Model().select(teamModel.Team).filter_by(matchId = match.id).first()
 	teamPlayer = model.Model().select(teamPlayerModel.TeamPlayer).filter_by(teamId = team.id).first()
 
-	data = {
-		"ready": True,
-		"turn": teamPlayer.playerId
-	}
+	for i in range(1, match.games + 1):
+		data = cricket_points(mode.mode)
+		turn = cricket_get_turn(match, i)
+		game = gameModel.Game(match.id, i, turn, turn, 1, False, data, datetime.now());
+		model.Model().create(game)
 
-	# randomize values for this game mode
-	if mode.mode == "random-crickets":
-		data["data"] = random_cricket_points()
-
-	model.Model().update(matchModel.Match, match.id, data)
+	model.Model().update(matchModel.Match, match.id, { "ready": True })
 	return redirect("/matches/%d/modes/cricket/play/" % id)
 
 @app.route("/matches/<int:id>/modes/cricket/players/", methods = ["GET"])
@@ -199,7 +168,7 @@ def cricket_players(id):
 	mode = model.Model().selectById(modeModel.Mode, match.modeId)
 	teamPlayers = getTeamPlayersByGameId(match.id)
 	teams = model.Model().select(teamModel.Team).filter_by(matchId = match.id)
-	players = model.Model().select(playerModel.Player).order_by(playerModel.Player.name)
+	players = model.Model().select(playerModel.Player).filter_by(enabled = 1).order_by(playerModel.Player.name)
 	return render_template("matches/modes/cricket/players.html", match = match, teams = teams, players = players, teamPlayers = teamPlayers)
 
 @app.route("/matches/<int:id>/modes/cricket/players/", methods = ["POST"])
@@ -239,24 +208,24 @@ def cricket_players_redo(id):
 @app.route("/matches/<int:id>/modes/cricket/next/", methods = ["POST"])
 def cricket_next(id):
 	match = model.Model().selectById(matchModel.Match, id)
+	game = model.Model().select(gameModel.Game).filter_by(matchId = match.id, game = match.game).first()
 	mode = model.Model().selectById(modeModel.Mode, match.modeId)
 
 	if match.complete:
 		return redirect("/")
 
-	data = match.data
-	if mode.mode == "random-crickets":
-		data = random_cricket_points()
+	if match.game < match.games:
+		model.Model().update(matchModel.Match, match.id, { "game": match.game + 1 })
 
-	turn = cricket_get_turn(match)
-	model.Model().update(matchModel.Match, match.id, { "game": match.game + 1, "round": 1, "turn": turn, "data": data })
+	model.Model().update(gameModel.Game, game.id, { "complete": True, "completedAt": datetime.now() })
 
 	return redirect("/matches/%d/modes/cricket/play/" % match.id)
 
 @app.route("/matches/<int:matchId>/modes/cricket/teams/<int:teamId>/players/<int:playerId>/matches/<int:game>/rounds/<int:round>/marks/<int:mark>/", methods = ["POST"])
 def cricket_score(matchId, teamId, playerId, game, round, mark):
-
-	model.Model().update(matchModel.Match, matchId, { "round": round })
+	match = model.Model().selectById(matchModel.Match, matchId)
+	gameEntity = model.Model().select(gameModel.Game).filter_by(matchId = match.id, game = match.game).first()
+	model.Model().update(gameModel.Game, gameEntity.id, { "round": round })
 
 	newMark = markModel.Mark()
 	newMark.matchId = matchId
@@ -286,50 +255,51 @@ def cricket_undo(matchId):
 	if marks.count() > 0:
 		mark = marks.first()
 
+		# if mark belongs to different game, we need uncomplete that game
+		if mark.game != match.game:
+			game = model.Model().select(gameModel.Game).filter_by(matchId = match.id, game = mark.game).one()
+			model.Model().update(gameModel.Game, game.id, { "complete": 0, "winner": None, "winnerScore": None, "loser": None, "loserScore": None, "completedAt": None })
+
 		redirect = False
 		if match.game != mark.game:
 			redirect = True
-			results = model.Model().select(resultModel.Result).filter_by(matchId = matchId, game = mark.game)
-			for result in results:
-				model.Model().delete(resultModel.Result, result.id)
 
 		model.Model().update(matchModel.Match, matchId, { "game": mark.game, "round": mark.round, "turn": mark.playerId })
 		model.Model().delete(markModel.Mark, mark.id)
-		return Response(json.dumps({  "matchId": matchId, "teamId": mark.teamId, "playerId": mark.playerId, "value": mark.value, "valid": True, "redirect": redirect }), status = 200, mimetype = "application/json")
+		return Response(json.dumps({ "matchId": matchId, "teamId": mark.teamId, "playerId": mark.playerId, "value": mark.value, "valid": True, "redirect": redirect }), status = 200, mimetype = "application/json")
 
 	return Response(json.dumps({ "id": matchId, "valid": False }), status = 200, mimetype = "application/json")
 
 @app.route("/matches/<int:matchId>/modes/cricket/players/<int:playerId>/turn/", methods = ["POST"])
 def cricket_turn(matchId, playerId):
-	model.Model().update(matchModel.Match, matchId, { "turn": playerId })
-	return Response(json.dumps({ "id": matchId }), status = 200, mimetype = "application/json")
+	match = model.Model().selectById(matchModel.Match, matchId)
+	game = model.Model().select(gameModel.Game).filter_by(matchId = match.id, game = match.game).first()
 
-@app.route("/matches/<int:matchId>/modes/cricket/teams/<int:teamId>/game/<int:game>/score/<int:score>/win/", methods = ["POST"])
-def cricket_win(matchId, teamId, game, score):
-	return result(matchId, teamId, game, score, 1, 0)
+	round = game.round
+	if game.start == playerId:
+		round = game.round + 1
 
-@app.route("/matches/<int:matchId>/modes/cricket/teams/<int:teamId>/game/<int:game>/score/<int:score>/loss/", methods = ["POST"])
-def cricket_loss(matchId, teamId, game, score):
-	return result(matchId, teamId, game, score, 0, 1)
+	model.Model().update(gameModel.Game, game.id, { "turn": playerId, "round": round })
+	return Response(json.dumps({ "id": matchId, "player": playerId, "round": round }), status = 200, mimetype = "application/json")
 
-@app.route("/matches/<int:matchId>/modes/cricket/teams/<int:teamId>/win/", methods = ["POST"])
-def cricket_gameWin(matchId, teamId):
-	return gameResult(matchId, teamId, 1, 0)
+@app.route("/matches/<int:matchId>/modes/cricket/game/<int:game>/game-over/", methods = ["POST"])
+def cricket_game_over(matchId, game):
+	data = {
+		"winner": request.form["winner"],
+		"winnerScore": request.form["winnerScore"],
+		"loser": request.form["loser"],
+		"loserScore": request.form["loserScore"]
+	}
 
-@app.route("/matches/<int:matchId>/modes/cricket/teams/<int:teamId>/loss/", methods = ["POST"])
-def cricket_gameLoss(matchId, teamId):
-	return gameResult(matchId, teamId, 0, 1)
+	gameEntity = model.Model().select(gameModel.Game).filter_by(matchId = matchId, game = game).first()
+	model.Model().update(gameModel.Game, gameEntity.id, data)
 
-def result(matchId, teamId, game, score, win, loss):
-	newResult = resultModel.Result(matchId, teamId, game, score, win, loss, datetime.now())
-	model.Model().create(newResult)
-	return Response(json.dumps({ "id": matchId }), status = 200, mimetype = "application/json")
+	return Response(json.dumps(data), status = 200, mimetype = "application/json")
 
-def gameResult(matchId, teamId, win, loss):
-	model.Model().update(teamModel.Team, teamId, { "win": win, "loss": loss })
-	if win == 1:
-		model.Model().update(matchModel.Match, matchId, { "complete": 1, "completedAt": datetime.now() })
-	return Response(json.dumps({ "id": teamId }), status = 200, mimetype = "application/json")
+@app.route("/matches/<int:matchId>/modes/cricket/match-over/", methods = ["POST"])
+def cricket_match_over(matchId):
+	model.Model().update(matchModel.Match, matchId, { "complete": 1, "completedAt": datetime.now() })
+	return Response(json.dumps({}), status = 200, mimetype = "application/json")
 
 def getTeamPlayersByGameId(matchId):
 	teams = model.Model().select(teamModel.Team).filter_by(matchId = matchId)
@@ -394,12 +364,7 @@ def cricket_again(id):
 	match = model.Model().selectById(matchModel.Match, id)
 	mode = model.Model().selectById(modeModel.Mode, match.modeId)
 
-	data = None
-	# randomize values for this game mode
-	if mode.mode == "random-crickets":
-		data = random_cricket_points()
-
-	newMatch = matchModel.Match(match.modeId, match.players, request.form["games"], 1, 1, True, 0, data, datetime.now())
+	newMatch = matchModel.Match(match.modeId, match.players, request.form["games"], 1, 1, True, 0, datetime.now())
 	model.Model().create(newMatch)
 
 	playerIds = []
@@ -415,9 +380,7 @@ def cricket_again(id):
 			model.Model().create(newTeamPlayer)
 			playerIds.append(teamPlayer.playerId)
 
-	model.Model().update(matchModel.Match, newMatch.id, { "turn": playerIds[0] })
-
-	return redirect("/matches/%d/modes/cricket/play/" % newMatch.id)
+	return cricket_play(newMatch.id)
 
 @app.route("/matches/<int:matchId>/modes/cricket/stats", methods = ["GET"])
 def cricket_stats(matchId):
@@ -430,35 +393,33 @@ def cricket_styles():
 def get_mark_styles():
 	return model.Model().select(markStyleModel.MarkStyle).filter_by(approved = 1, confirmed = 1)
 
-def cricket_get_turn(match):
-
-	gameNum = match.game + 1
-
-	if match.complete:
-		return redirect("/")
+def cricket_get_turn(match, game):
 
 	teamPlayers = getTeamPlayersByGameId(match.id)
 
 	if match.players == 4:
-		if gameNum == 5:
-			turn = teamPlayers[0].playerId
-		elif gameNum == 4:
-			turn = teamPlayers[3].playerId
-		elif gameNum == 3:
-			turn = teamPlayers[1].playerId
-		elif gameNum == 2:
-			turn = teamPlayers[2].playerId
-		elif gameNum == 1:
-			turn = teamPlayers[0].playerId
+		if game == 5:
+			return teamPlayers[0].playerId
+		elif game == 4:
+			return teamPlayers[3].playerId
+		elif game == 3:
+			return teamPlayers[1].playerId
+		elif game == 2:
+			return teamPlayers[2].playerId
+		elif game == 1:
+			return teamPlayers[0].playerId
 	else:
-		if gameNum == 2 or gameNum == 4:
-			turn = teamPlayers[1].playerId
+		if game == 2 or game == 4:
+			return teamPlayers[1].playerId
 		else:
-			turn = teamPlayers[0].playerId
+			return teamPlayers[0].playerId
 
-	return turn
+	return teamPlayers[0].playerId
 
-def random_cricket_points():
+def cricket_points(mode):
+
+	if mode != "random-crickets":
+		return "20,19,18,17,16,15"
 
 	# 10% of the time, it works, everytime
 	groupNumbers = (random.randint(0,9) == 1)

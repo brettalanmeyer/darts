@@ -255,13 +255,18 @@ def cricket_undo(matchId):
 	if marks.count() > 0:
 		mark = marks.first()
 
+		# if mark belongs to different game, we need uncomplete that game
+		if mark.game != match.game:
+			game = model.Model().select(gameModel.Game).filter_by(matchId = match.id, game = mark.game).one()
+			model.Model().update(gameModel.Game, game.id, { "complete": 0, "winner": None, "winnerScore": None, "loser": None, "loserScore": None, "completedAt": None })
+
 		redirect = False
 		if match.game != mark.game:
 			redirect = True
 
 		model.Model().update(matchModel.Match, matchId, { "game": mark.game, "round": mark.round, "turn": mark.playerId })
 		model.Model().delete(markModel.Mark, mark.id)
-		return Response(json.dumps({  "matchId": matchId, "teamId": mark.teamId, "playerId": mark.playerId, "value": mark.value, "valid": True, "redirect": redirect }), status = 200, mimetype = "application/json")
+		return Response(json.dumps({ "matchId": matchId, "teamId": mark.teamId, "playerId": mark.playerId, "value": mark.value, "valid": True, "redirect": redirect }), status = 200, mimetype = "application/json")
 
 	return Response(json.dumps({ "id": matchId, "valid": False }), status = 200, mimetype = "application/json")
 

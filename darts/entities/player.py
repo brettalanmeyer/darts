@@ -9,8 +9,10 @@ class Player(Base):
 
 	id = Column(Integer, primary_key = True)
 	name = Column(String)
+	enabled = Column(Integer)
 	createdAt = Column(DateTime)
 
-	def __init__(self, name, createdAt):
+	def __init__(self, name, enabled, createdAt):
 		self.name = name
+		self.enabled = enabled
 		self.createdAt = createdAt

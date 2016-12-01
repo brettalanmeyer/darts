@@ -37,7 +37,7 @@ def around_the_world_players(id):
 	mode = model.Model().selectById(modeModel.Mode, match.modeId)
 	teamPlayers = getTeamPlayersByMatchId(match.id)
 	teams = model.Model().select(teamModel.Team).filter_by(matchId = match.id)
-	players = model.Model().select(playerModel.Player).order_by(playerModel.Player.name)
+	players = model.Model().select(playerModel.Player).filter_by(enabled = 1).order_by(playerModel.Player.name)
 	return render_template("matches/modes/x01/players.html", match = match, mode = mode, teams = teams, players = players, teamPlayers = teamPlayers)
 
 @app.route("/matches/<int:id>/modes/around-the-world/players/redo/", methods = ["POST"])

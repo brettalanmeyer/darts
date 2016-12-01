@@ -32,7 +32,7 @@ def players_create():
 	if players.count() > 0:
 		return render_template("players/new.html", matchId = matchId, name = request.form["name"], error = True)
 
-	newPlayer = playerModel.Player(request.form["name"], datetime.now())
+	newPlayer = playerModel.Player(request.form["name"], True, datetime.now())
 	model.Model().create(newPlayer)
 
 	if matchId == 0:

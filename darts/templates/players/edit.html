@@ -21,7 +21,20 @@
 
 			<div class="form-group">
 
-				<input type="text" name="name" value="{{ player.name }}" class="form-control" placeholder="Name..." autocomplete="off" maxlength="255" required />
+				<label for="field-name">Name</label>
+
+				<input type="text" id="field-name" name="name" value="{{ player.name }}" class="form-control" placeholder="Name..." autocomplete="off" maxlength="255" required />
+
+			</div>
+
+			<div class="form-group">
+
+				<label for="field-enabled">Enabled</label>
+
+				<select id="field-enabled" name="enabled" class="form-control" autocomplete="off" required>
+					<option value="1" {% if player.enabled == 1 %}selected="selected"{% endif %}>Yes</option>
+					<option value="0" {% if player.enabled == 0 %}selected="selected"{% endif %}>No</option>
+				</select>
 
 			</div>
 

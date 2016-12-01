@@ -168,7 +168,7 @@ def cricket_players(id):
 	mode = model.Model().selectById(modeModel.Mode, match.modeId)
 	teamPlayers = getTeamPlayersByGameId(match.id)
 	teams = model.Model().select(teamModel.Team).filter_by(matchId = match.id)
-	players = model.Model().select(playerModel.Player).order_by(playerModel.Player.name)
+	players = model.Model().select(playerModel.Player).filter_by(enabled = 1).order_by(playerModel.Player.name)
 	return render_template("matches/modes/cricket/players.html", match = match, teams = teams, players = players, teamPlayers = teamPlayers)
 
 @app.route("/matches/<int:id>/modes/cricket/players/", methods = ["POST"])

@@ -15,7 +15,6 @@ class Match(Base):
 	game = Column(Integer)
 	round = Column(Integer)
 	ready = Column(Integer)
-	turn = Column(Integer)
 	complete = Column(Integer)
 	createdAt = Column(DateTime)
 	completedAt = Column(DateTime)

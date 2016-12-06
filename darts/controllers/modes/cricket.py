@@ -254,17 +254,18 @@ def cricket_undo(matchId):
 
 	if marks.count() > 0:
 		mark = marks.first()
+		game = model.Model().select(gameModel.Game).filter_by(matchId = match.id, game = mark.game).one()
 
 		# if mark belongs to different game, we need uncomplete that game
 		if mark.game != match.game:
-			game = model.Model().select(gameModel.Game).filter_by(matchId = match.id, game = mark.game).one()
 			model.Model().update(gameModel.Game, game.id, { "complete": 0, "winner": None, "winnerScore": None, "loser": None, "loserScore": None, "completedAt": None })
 
 		redirect = False
 		if match.game != mark.game:
 			redirect = True
 
-		model.Model().update(matchModel.Match, matchId, { "game": mark.game, "round": mark.round, "turn": mark.playerId })
+		model.Model().update(matchModel.Match, matchId, { "game": mark.game, "round": mark.round })
+		model.Model().update(gameModel.Game, game.id, { "turn": mark.playerId })
 		model.Model().delete(markModel.Mark, mark.id)
 		return Response(json.dumps({ "matchId": matchId, "teamId": mark.teamId, "playerId": mark.playerId, "value": mark.value, "valid": True, "redirect": redirect }), status = 200, mimetype = "application/json")
 
@@ -299,6 +300,25 @@ def cricket_game_over(matchId, game):
 @app.route("/matches/<int:matchId>/modes/cricket/match-over/", methods = ["POST"])
 def cricket_match_over(matchId):
 	model.Model().update(matchModel.Match, matchId, { "complete": 1, "completedAt": datetime.now() })
+
+	teams = model.Model().select(teamModel.Team).filter_by(matchId = matchId)
+
+	team1 = teams.order_by("id").first().id
+	team2 = teams.order_by("-id").first().id
+
+	wins1 = model.Model().select(gameModel.Game).filter_by(matchId = matchId, winner = team1).count()
+	wins2 = model.Model().select(gameModel.Game).filter_by(matchId = matchId, winner = team2).count()
+
+	winner = team1
+	loser = team2
+
+	if wins2 > wins1:
+		winner = team2
+		loser = team1
+
+	model.Model().update(teamModel.Team, winner, { "win": 1, "loss": 0 })
+	model.Model().update(teamModel.Team, loser, { "win": 0, "loss": 1 })
+
 	return Response(json.dumps({}), status = 200, mimetype = "application/json")
 
 def getTeamPlayersByGameId(matchId):

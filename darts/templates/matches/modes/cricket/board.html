@@ -126,7 +126,7 @@
 							{% for i in range(0, match["numGames"] - 1) %}
 								{% set game = match["games"][i] %}
 								<span class="round-score">
-									<label>R:</label>
+									<label>R{{ (i + 1) }}:</label>
 									{% if team.id == game.winner %}
 										{{ game["winnerScore"] }}
 									{% elif team.id == game.loser %}

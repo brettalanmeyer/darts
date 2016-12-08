@@ -68,8 +68,13 @@ def matches_index(page):
 			"mode": mode,
 			"date": "{:%b %d, %Y} ".format(match.createdAt),
 			"time": "{:%I:%M %p}".format(match.createdAt).lower(),
+			"duration": None,
 			"teams": []
 		}
+
+		if match.completedAt != None:
+			duration = match.completedAt - match.createdAt
+			matchData["duration"] = duration
 
 		teams = model.Model().select(teamModel.Team).filter_by(matchId = match.id)
 

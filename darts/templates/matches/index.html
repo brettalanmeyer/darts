@@ -28,6 +28,9 @@
 							<a href="{{ url }}">
 								{{ match["date"] }}<br />
 								{{ match["time"] }}
+								{% if match["duration"] != None %}
+									- {{ match["duration"] }}
+								{% endif %}
 							</a>
 						</td>
 

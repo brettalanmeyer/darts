@@ -17,12 +17,8 @@ $(function(){
 			playerId: source.data("playerid")
 		};
 
-		players.prop("disabled", true);
-
-		$.post("/matches/" + matchId + "/modes/cricket/players/", data, function(data){
-			selectPlayer(source);
-			players.prop("disabled", false);
-		});
+		selectPlayer(source);
+		$.post("/matches/" + matchId + "/modes/cricket/players/", data);
 
 	});
 

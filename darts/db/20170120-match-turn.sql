@@ -1,0 +1,3 @@
+
+ALTER TABLE `matches`
+	ADD COLUMN `turn` INT(11) NULL DEFAULT NULL AFTER `round`;

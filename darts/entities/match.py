@@ -16,6 +16,7 @@ class Match(Base):
 	round = Column(Integer)
 	ready = Column(Integer)
 	complete = Column(Integer)
+	turn = Column(Integer)
 	createdAt = Column(DateTime)
 	completedAt = Column(DateTime)
 

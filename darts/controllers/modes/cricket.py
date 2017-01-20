@@ -60,10 +60,21 @@ def getGameData(id):
 	mode = model.Model().selectById(modeModel.Mode, match.modeId)
 	teams = model.Model().select(teamModel.Team).filter_by(matchId = match.id)
 
+	gameData = []
+
+	for item in games:
+		gameData.append({
+			"game": item.game,
+			"winner": item.winner,
+			"winnerScore": item.winnerScore,
+			"loser": item.loser,
+			"loserScore": item.loserScore
+		})
+
 	data = {
 		"id": int(match.id),
 		"numGames": games.count(),
-		"games": games,
+		"games": gameData,
 		"game": game.game,
 		"round": game.round,
 		"players": match.players,

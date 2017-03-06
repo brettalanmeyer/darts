@@ -104,19 +104,22 @@ header {
 
 .player .initial {
 	font-size: 6vh;
-	line-height: 9vh;
+	line-height: 6vh;
+	text-indent: 12px;
 }
 
 .player .name {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	text-indent: 12px;
 }
 
 .player .marks-per-round {
 	line-height: 10px;
 	font-size: 8px;
 	position: absolute;
+	top: 4px;
 }
 
 .player .marks-per-round .label,
@@ -236,7 +239,7 @@ header {
 }
 
 .current-round-points {
-	font-size: 11vh;
+	font-size: 9vh;
 	line-height: 8vh;
 	text-align: center;
 	position: relative;

@@ -36,7 +36,6 @@
 								<div class="player {% if player.id == match.turn %}active{% endif %}" data-playerid="{{ player.id }}" data-teamid="{{ team.id }}" data-order="{{ playerOrder }}">
 
 									<div class="marks-per-round">
-										<div class="label">M/R</div>
 										<div class="value">
 											<span class="rnd">1:</span>
 											<span class="val r1">{% if match.game >= 1 %}{{ player.mpr1 }}{% else %}-{% endif %}</span>

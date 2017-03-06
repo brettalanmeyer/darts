@@ -27,10 +27,11 @@ header {
 	font-family: Arial;
 	color: #666;
 	font-size: 3vh;
-	vertical-align: middle;
 	cursor: pointer;
 	border-bottom: solid 1px #e0e0e0;
 	border-right: solid 1px #fff;
+	overflow: hidden;
+	vertical-align: middle;
 }
 
 .game-option .miss,
@@ -42,7 +43,6 @@ header {
 .game-option .undo {
 	height: 100%;
 	border: none;
-	line-height: 14vh;
 }
 
 .game-option .miss .default {
@@ -56,6 +56,9 @@ header {
 }
 .game-option .miss:active .active {
 	display: inline;
+}
+.game-option .target {
+	width: 100%;
 }
 
 .target:active,

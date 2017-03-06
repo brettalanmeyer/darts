@@ -6,7 +6,7 @@
 	color: #333;
 	display: block;
 	width: 100%;
-	padding: 8px;
+	padding: 8px 4px;
 	overflow: hidden;
 }
 
@@ -30,6 +30,11 @@
 	text-align: center;
 }
 
+.game-type {
+	width: 60px;
+	text-align: center;
+}
+
 .game-date {
 	text-align: center;
 }
@@ -43,6 +48,7 @@
 	vertical-align: bottom !important;
 	font-size: 10px;
 	padding-bottom: 10px !important;
+	min-width: 70px;
 }
 
 .game-vs {
